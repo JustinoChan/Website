@@ -1,46 +1,49 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Project } from "@/lib/projects";
 
-export default function ProjectCard({ project }: { project: Project }) {
+export default function ProjectCard({
+  project,
+  index,
+}: {
+  project: Project;
+  index: string;
+}) {
   return (
-    <Link
-      href={`/projects/${project.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-bg-soft)] hover:border-[var(--color-accent)]/50 transition-all"
-    >
-      <div className="relative aspect-[16/10] overflow-hidden bg-black/40">
-        <Image
-          src={project.cover}
-          alt={project.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(min-width: 768px) 50vw, 100vw"
-        />
-      </div>
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg font-semibold">{project.title}</h3>
-          <span
-            aria-hidden
-            className="text-[var(--color-fg-muted)] group-hover:text-[var(--color-accent)] group-hover:translate-x-1 transition-all"
-          >
-            →
+    <li className="group">
+      <Link href={`/projects/${project.slug}`} className="block">
+        <div className="flex items-baseline gap-3">
+          <span className="text-[var(--color-accent)]">§{index}</span>
+          <span className="text-[var(--color-fg-muted)] text-xs">
+            [{project.period}]
           </span>
         </div>
-        <p className="mt-1 text-sm text-[var(--color-fg-muted)] leading-relaxed">
-          {project.tagline}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {project.tags.map((t) => (
-            <span
-              key={t}
-              className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs text-[var(--color-fg-muted)]"
-            >
-              {t}
-            </span>
-          ))}
+        <div
+          aria-hidden
+          className="mt-1 text-[var(--color-line)] select-none overflow-hidden whitespace-nowrap"
+        >
+          {"─".repeat(200)}
         </div>
-      </div>
-    </Link>
+        <div className="mt-3 pl-6">
+          <h3 className="text-lg group-hover:text-[var(--color-accent)] transition-colors">
+            <span className="text-[var(--color-fg-muted)]">./</span>
+            {project.slug}
+            <span className="text-[var(--color-fg-muted)]">/</span>
+          </h3>
+          <p className="mt-2 text-[var(--color-fg-muted)]">
+            {project.tagline}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-x-2 gap-y-1 text-xs text-[var(--color-fg-muted)]">
+            {project.tags.map((t) => (
+              <span key={t}>
+                [<span className="text-[var(--color-fg)]">{t.toLowerCase()}</span>]
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-[var(--color-fg-muted)] group-hover:text-[var(--color-accent)] transition-colors">
+            → cd /projects/{project.slug}
+          </p>
+        </div>
+      </Link>
+    </li>
   );
 }

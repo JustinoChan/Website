@@ -14,10 +14,19 @@ export async function generateMetadata({ params }: { params: Params }) {
   const project = getProject(slug);
   if (!project) return { title: "Project not found" };
   return {
-    title: `${project.title} — Your Name`,
+    title: `${project.slug} — justin-chan(1)`,
     description: project.tagline,
   };
 }
+
+const Rule = () => (
+  <div
+    aria-hidden
+    className="text-[var(--color-line)] select-none overflow-hidden whitespace-nowrap"
+  >
+    {"─".repeat(200)}
+  </div>
+);
 
 export default async function ProjectDetailPage({
   params,
@@ -28,100 +37,136 @@ export default async function ProjectDetailPage({
   const project = getProject(slug);
   if (!project) notFound();
 
+  const meta: { label: string; value: React.ReactNode }[] = [
+    { label: "project", value: project.slug },
+    { label: "title", value: project.title },
+    { label: "period", value: project.period },
+    {
+      label: "tags",
+      value: project.tags.map((t) => `[${t.toLowerCase()}]`).join(" "),
+    },
+  ];
+  if (project.repoUrl) {
+    meta.push({
+      label: "repo",
+      value: (
+        <a
+          href={project.repoUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-[var(--color-accent)] transition-colors underline decoration-dotted underline-offset-4"
+        >
+          {project.repoUrl.replace(/^https?:\/\//, "")}
+        </a>
+      ),
+    });
+  }
+  if (project.liveUrl) {
+    meta.push({
+      label: "live",
+      value: (
+        <a
+          href={project.liveUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-[var(--color-accent)] transition-colors underline decoration-dotted underline-offset-4"
+        >
+          {project.liveUrl.replace(/^https?:\/\//, "")}
+        </a>
+      ),
+    });
+  }
+
   return (
-    <article className="mx-auto max-w-4xl px-6 pt-16 pb-20 sm:pt-24">
+    <article className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:pt-14">
       <Link
         href="/projects"
-        className="text-sm text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] transition-colors"
+        className="text-xs text-[var(--color-fg-muted)] hover:text-[var(--color-accent)] transition-colors"
       >
-        ← All projects
+        <span className="text-[var(--color-accent)]">$</span> cd ../
+        <span className="ml-2">← back to projects</span>
       </Link>
 
-      <header className="mt-6">
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-          {project.title}
-        </h1>
-        <p className="mt-3 text-lg text-[var(--color-fg-muted)]">
-          {project.tagline}
+      <header className="mt-8">
+        <p className="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
+          project specification
         </p>
-        <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
-          {project.period}
-        </p>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          {project.tags.map((t) => (
-            <span
-              key={t}
-              className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs text-[var(--color-fg-muted)]"
+        <Rule />
+        <dl className="mt-3 space-y-1.5">
+          {meta.map((m) => (
+            <div
+              key={m.label}
+              className="grid grid-cols-[6rem_1fr] gap-x-4 items-baseline"
             >
-              {t}
-            </span>
+              <dt className="text-[var(--color-accent)]">[{m.label}]</dt>
+              <dd className="break-words">{m.value}</dd>
+            </div>
           ))}
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
-            >
-              Live demo <span aria-hidden>↗</span>
-            </a>
-          )}
-          {project.repoUrl && (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium hover:bg-white/5 transition-colors"
-            >
-              Source code <span aria-hidden>↗</span>
-            </a>
-          )}
-        </div>
+        </dl>
+        <Rule />
       </header>
 
-      <div className="mt-10 space-y-4 text-[var(--color-fg-muted)] leading-relaxed">
-        {project.description.split("\n\n").map((para, i) => (
-          <p key={i}>{para}</p>
-        ))}
-      </div>
+      <section className="mt-10">
+        <h2 className="flex items-baseline gap-3">
+          <span className="text-[var(--color-accent)]">§01</span>
+          <span className="uppercase tracking-wider">description</span>
+        </h2>
+        <Rule />
+        <div className="mt-4 pl-6 space-y-4 text-[var(--color-fg-muted)]">
+          {project.description.split("\n\n").map((para, i) => (
+            <p key={i}>{para}</p>
+          ))}
+        </div>
+      </section>
 
       {project.media.length > 0 && (
-        <section className="mt-12 space-y-6">
-          <h2 className="text-xl font-semibold">Gallery</h2>
-          <div className="grid gap-6">
+        <section className="mt-12">
+          <h2 className="flex items-baseline gap-3">
+            <span className="text-[var(--color-accent)]">§02</span>
+            <span className="uppercase tracking-wider">gallery</span>
+          </h2>
+          <Rule />
+          <div className="mt-6 pl-6 grid gap-6">
             {project.media.map((m, i) =>
               m.type === "image" ? (
-                <div
-                  key={i}
-                  className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-black/40"
-                >
-                  <Image
-                    src={m.src}
-                    alt={m.alt}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 768px) 768px, 100vw"
-                  />
-                </div>
+                <figure key={i}>
+                  <p className="text-xs text-[var(--color-fg-muted)] mb-2">
+                    [<span className="text-[var(--color-accent)]">img.{String(i + 1).padStart(2, "0")}</span>] {m.alt}
+                  </p>
+                  <div className="relative aspect-[16/10] overflow-hidden border border-[var(--color-line)] bg-[var(--color-bg-soft)]">
+                    <Image
+                      src={m.src}
+                      alt={m.alt}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 768px) 720px, 100vw"
+                    />
+                  </div>
+                </figure>
               ) : (
-                <video
-                  key={i}
-                  src={m.src}
-                  poster={m.poster}
-                  controls
-                  preload="metadata"
-                  aria-label={m.alt}
-                  className="w-full rounded-2xl border border-white/10 bg-black/40"
-                />
+                <figure key={i}>
+                  <p className="text-xs text-[var(--color-fg-muted)] mb-2">
+                    [<span className="text-[var(--color-accent)]">vid.{String(i + 1).padStart(2, "0")}</span>] {m.alt}
+                  </p>
+                  <video
+                    src={m.src}
+                    poster={m.poster}
+                    controls
+                    preload="metadata"
+                    aria-label={m.alt}
+                    className="w-full border border-[var(--color-line)] bg-[var(--color-bg-soft)]"
+                  />
+                </figure>
               )
             )}
           </div>
         </section>
       )}
+
+      <div className="mt-16 text-[var(--color-fg-muted)]">
+        <span className="text-[var(--color-accent)]">$</span> cd ../
+        <span className="cursor" aria-hidden />
+      </div>
     </article>
   );
 }
