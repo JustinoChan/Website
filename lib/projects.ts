@@ -18,6 +18,32 @@ export type Project = {
 // Drop screenshots/videos into /public/projects/<slug>/ and reference as "/projects/<slug>/file.png"
 export const projects: Project[] = [
   {
+    slug: "ascension-ai",
+    title: "AscensionAI",
+    tagline:
+      "Reinforcement learning agent that learns to play Slay the Spire via behavior cloning and PPO.",
+    description:
+      "AscensionAI is a reinforcement learning project for training an AI agent to play Slay the Spire through a Gymnasium-style environment, Communication Mod integration, behavior cloning warm starts, PPO fine-tuning, action masking, dense reward shaping, and parallel rollout workers.\n\nThe observation encoder converts the full game state into a 530-float vector covering player stats, hand cards, monster identity/behavior/intents/powers, screen context, relic/potion inventories, deck profile, and map path lookahead. It includes a built-in database of all 66 STS monsters with behavioral flags and identity embeddings, so the agent knows enemy patterns from the first encounter.\n\nThe action space covers 134 discrete actions — targeted/untargeted card plays, end turn, potions, choice selection, proceed, and leave — with illegal actions masked out per game state. Dense per-step rewards shape learning for gold, relics, max HP, floor progression, combat damage, card management, and act advancement, with extra incentives for priority targets like Gremlin Nob and Cultist.\n\nTraining follows a three-stage pipeline: behavior cloning from a hand-coded heuristic, PPO fine-tuning with GAE advantages and KL early stopping, then parallel scaling across multiple STS instances with an offline trainer. A GUI Control Panel auto-detects hardware, manages workers, and displays live logs. The project also supports multi-machine collaboration where rollout data is pooled across contributors.",
+    tags: [
+      "Python",
+      "PyTorch",
+      "Reinforcement Learning",
+      "PPO",
+      "Gymnasium",
+      "Slay the Spire",
+    ],
+    period: "Nov 2025 — Present",
+    cover: "/projects/placeholder-2.svg",
+    repoUrl: "https://github.com/JustinoChan/AscensionAI",
+    media: [
+      {
+        type: "image",
+        src: "/projects/placeholder-2.svg",
+        alt: "AscensionAI cover",
+      },
+    ],
+  },
+  {
     slug: "search-engine",
     title: "Search Engine",
     tagline: "Python search engine that indexed 56,000+ web pages.",
