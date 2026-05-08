@@ -33,6 +33,15 @@ const education = [
 
 const projectHighlights = [
   {
+    title: "ascension-ai",
+    period: "2025-11 → present",
+    bullets: [
+      "Built a reinforcement learning agent to play Slay the Spire using behavior cloning warm-starts and PPO fine-tuning.",
+      "Designed a 530-dimensional observation encoder with a built-in database of all 66 STS monsters, 134-action masked action space, and dense reward shaping.",
+      "Implemented parallel rollout workers across multiple live game instances with an offline PPO trainer and a GUI control panel for long-running autonomous training.",
+    ],
+  },
+  {
     title: "search-engine",
     period: "2023-02 → 2023-03",
     bullets: [
@@ -62,6 +71,7 @@ const skillGroups: { label: string; items: string }[] = [
   { label: "languages", items: "java, python, c, c++, javascript, typescript" },
   { label: "web", items: "html, css, angular, react, django" },
   { label: "data", items: "sql, mongodb, firebase" },
+  { label: "ml/ai", items: "reinforcement learning, ppo, behavior cloning, gymnasium, pytorch" },
   {
     label: "engineering",
     items:

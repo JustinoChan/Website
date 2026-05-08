@@ -33,13 +33,13 @@ export const projects: Project[] = [
       "Slay the Spire",
     ],
     period: "Nov 2025 — Present",
-    cover: "/projects/placeholder-2.svg",
+    cover: "/projects/ascension-ai/cover.jpg",
     repoUrl: "https://github.com/JustinoChan/AscensionAI",
     media: [
       {
         type: "image",
-        src: "/projects/placeholder-2.svg",
-        alt: "AscensionAI cover",
+        src: "/projects/ascension-ai/cover.jpg",
+        alt: "Slay the Spire — the game AscensionAI is trained to play",
       },
     ],
   },

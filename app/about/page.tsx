@@ -80,9 +80,18 @@ export default function AboutPage() {
             <p>
               I love working on problems that span the stack — from designing
               indexing strategies that shave milliseconds off query times, to
-              shipping responsive UIs that feel good to use. My favorite
-              projects so far have been a search engine over 56,000+ web pages,
-              a capstone archive built with React and Django, and a full-stack
+              shipping responsive UIs that feel good to use, to training
+              reinforcement learning agents on real games. My most recent
+              project is{" "}
+              <span className="text-[var(--color-fg)]">AscensionAI</span>, a
+              Python RL system that learns to play Slay the Spire through
+              behavior cloning and PPO fine-tuning, with a 530-dimensional
+              observation encoder, action masking over 134 discrete actions,
+              and parallel rollout workers across multiple live game instances.
+            </p>
+            <p>
+              Other projects include a search engine over 56,000+ web pages, a
+              capstone archive built with React and Django, and a full-stack
               social platform with real-time messaging.
             </p>
             <p>
