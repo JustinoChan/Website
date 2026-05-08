@@ -143,11 +143,6 @@ export default function AboutPage() {
             ))}
           </dl>
         </Section>
-
-        <div className="mt-16 text-[var(--color-fg-muted)]">
-          <span className="text-[var(--color-accent)]">$</span> exit
-          <span className="cursor" aria-hidden />
-        </div>
       </article>
     </>
   );

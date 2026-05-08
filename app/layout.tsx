@@ -3,6 +3,7 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import TerminalPrompt from "@/components/TerminalPrompt";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -31,7 +32,10 @@ export default function RootLayout({
     <html lang="en" className={jetbrainsMono.variable}>
       <body className="min-h-screen flex flex-col relative">
         <Nav />
-        <main className="flex-1 relative z-10">{children}</main>
+        <main className="flex-1 relative z-10">
+          {children}
+          <TerminalPrompt />
+        </main>
         <Footer />
       </body>
     </html>

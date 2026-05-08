@@ -1,8 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 const Rule = () => (
   <div
@@ -26,108 +23,9 @@ const Section = ({
   </section>
 );
 
-const normalizeCommand = (command: string) =>
-  command.trim().replace(/^\$\s*/, "").replace(/\s+/g, " ").toLowerCase();
-
-const TerminalPrompt = () => {
-  const router = useRouter();
-  const [command, setCommand] = useState("");
-  const [message, setMessage] = useState("");
-
-  const runCommand = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const normalized = normalizeCommand(command);
-    setMessage("");
-
-    if (
-      [
-        "open ~/projects",
-        "open /projects",
-        "projects",
-        "justin -p",
-        "justin --projects",
-      ].includes(normalized)
-    ) {
-      router.push("/projects");
-      return;
-    }
-
-    if (
-      [
-        "open ~/about",
-        "open /about",
-        "about",
-        "justin -a",
-        "justin --about",
-      ].includes(normalized)
-    ) {
-      router.push("/about");
-      return;
-    }
-
-    if (
-      [
-        "open ~/resume",
-        "open /resume",
-        "resume",
-        "justin -r",
-        "justin --resume",
-      ].includes(normalized)
-    ) {
-      router.push("/resume");
-      return;
-    }
-
-    if (
-      [
-        "mail justinochan16@gmail.com",
-        "mailto justinochan16@gmail.com",
-        "justin -c",
-        "justin --contact",
-      ].includes(normalized)
-    ) {
-      window.location.href = "mailto:justinochan16@gmail.com";
-      return;
-    }
-
-    setMessage(`command not found: ${command.trim() || "empty input"}`);
-  };
-
-  return (
-    <form className="mt-10" onSubmit={runCommand}>
-      <label className="sr-only" htmlFor="terminal-command">
-        Portfolio command
-      </label>
-      <div className="flex items-center text-[var(--color-fg-muted)]">
-        <span className="text-[var(--color-accent)]">$</span>
-        <input
-          id="terminal-command"
-          value={command}
-          onChange={(event) => setCommand(event.target.value)}
-          className="ml-2 min-w-0 flex-1 bg-transparent text-[var(--color-fg-muted)] outline-none caret-[var(--color-accent)] placeholder:text-[var(--color-fg-muted)]"
-          placeholder="_"
-          autoComplete="off"
-          spellCheck={false}
-          aria-describedby={message ? "terminal-command-message" : undefined}
-        />
-      </div>
-      {message ? (
-        <p
-          id="terminal-command-message"
-          className="mt-2 pl-6 text-[var(--color-accent)]"
-          aria-live="polite"
-        >
-          {message}
-        </p>
-      ) : null}
-    </form>
-  );
-};
-
 export default function HomePage() {
   return (
-    <article className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:pt-14">
+    <article className="mx-auto max-w-3xl px-6 pt-10 sm:pt-14">
       {/* man-page header strip */}
       <div className="flex items-center justify-between text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
         <span>justin-chan(1)</span>
@@ -232,7 +130,10 @@ $ open ~/projects
 $ open ~/about
 
 # get in touch
-$ mail justinochan16@gmail.com`}
+$ mail justinochan16@gmail.com
+
+# show every command
+$ help`}
         </pre>
       </Section>
 
@@ -263,7 +164,7 @@ $ mail justinochan16@gmail.com`}
 
       <Section heading="VERSION">
         <p className="text-[var(--color-fg-muted)]">
-          portfolio v1.1 · last updated 2026-05-07
+          portfolio v1.2 · last updated 2026-05-08
         </p>
       </Section>
 
@@ -275,8 +176,6 @@ $ mail justinochan16@gmail.com`}
           <span>justin-chan(1)</span>
         </div>
       </div>
-
-      <TerminalPrompt />
     </article>
   );
 }

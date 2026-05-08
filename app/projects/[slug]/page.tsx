@@ -93,7 +93,7 @@ export default async function ProjectDetailPage({
   }
 
   return (
-    <article className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:pt-14">
+    <article className="mx-auto max-w-3xl px-6 pt-10 sm:pt-14">
       <Link
         href="/projects"
         className="text-xs text-[var(--color-fg-muted)] hover:text-[var(--color-accent)] transition-colors"
@@ -177,11 +177,6 @@ export default async function ProjectDetailPage({
           </div>
         </section>
       )}
-
-      <div className="mt-16 text-[var(--color-fg-muted)]">
-        <span className="text-[var(--color-accent)]">$</span> cd ../
-        <span className="cursor" aria-hidden />
-      </div>
     </article>
   );
 }

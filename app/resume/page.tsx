@@ -254,12 +254,6 @@ export default function ResumePage() {
             ))}
           </dl>
         </Section>
-
-        <div className="mt-16 text-[var(--color-fg-muted)]">
-          <span className="text-[var(--color-accent)]">$</span> cat resume |
-          tail
-          <span className="cursor" aria-hidden />
-        </div>
       </article>
     </>
   );
