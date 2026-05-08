@@ -46,20 +46,21 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: "search-engine",
-    title: "Search Engine",
-    tagline: "Python search engine that indexed 56,000+ web pages.",
+    slug: "bitlink",
+    title: "BitLink",
+    tagline:
+      "Full-stack social platform with real-time messaging and social interactions.",
     description:
-      "Engineered a Python-based search engine that indexed and processed 56,000+ web pages, enabling rapid information retrieval across a large corpus.\n\nDeveloped a robust query handling system that improved search accuracy and interpretation of user intent. Reduced average query response time by 35% through custom tokenization and algorithm optimization strategies.",
-    tags: ["Python", "JSON", "Algorithm Optimization", "Information Retrieval"],
-    period: "Feb 2023 — Mar 2023",
+      "Built and deployed a full-stack social media platform supporting real-time messaging, user authentication, and social interactions (posts, likes, follows).\n\nDeveloped scalable APIs in Node.js to handle data persistence for records in MongoDB. Implemented secure authentication using Passport.js and BCrypt, ensuring encrypted credential storage and session handling. Designed a responsive UI in Angular + TypeScript, improving engagement and usability across devices.",
+    tags: ["Angular", "TypeScript", "MongoDB", "Node.js", "Passport", "BCrypt"],
+    period: "Mar 2024 — Jun 2024",
     cover: "/projects/placeholder-1.svg",
-    repoUrl: "https://github.com/Vincent10351/Indexer",
+    repoUrl: "https://github.com/SusLiu03/BitLink",
     media: [
       {
         type: "image",
         src: "/projects/placeholder-1.svg",
-        alt: "Search Engine cover",
+        alt: "BitLink cover",
       },
     ],
   },
@@ -82,21 +83,20 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: "bitlink",
-    title: "BitLink",
-    tagline:
-      "Full-stack social platform with real-time messaging and social interactions.",
+    slug: "search-engine",
+    title: "Search Engine",
+    tagline: "Python search engine that indexed 56,000+ web pages.",
     description:
-      "Built and deployed a full-stack social media platform supporting real-time messaging, user authentication, and social interactions (posts, likes, follows).\n\nDeveloped scalable APIs in Node.js to handle data persistence for records in MongoDB. Implemented secure authentication using Passport.js and BCrypt, ensuring encrypted credential storage and session handling. Designed a responsive UI in Angular + TypeScript, improving engagement and usability across devices.",
-    tags: ["Angular", "TypeScript", "MongoDB", "Node.js", "Passport", "BCrypt"],
-    period: "Mar 2024 — Jun 2024",
+      "Engineered a Python-based search engine that indexed and processed 56,000+ web pages, enabling rapid information retrieval across a large corpus.\n\nDeveloped a robust query handling system that improved search accuracy and interpretation of user intent. Reduced average query response time by 35% through custom tokenization and algorithm optimization strategies.",
+    tags: ["Python", "JSON", "Algorithm Optimization", "Information Retrieval"],
+    period: "Feb 2023 — Mar 2023",
     cover: "/projects/placeholder-1.svg",
-    repoUrl: "https://github.com/SusLiu03/BitLink",
+    repoUrl: "https://github.com/Vincent10351/Indexer",
     media: [
       {
         type: "image",
         src: "/projects/placeholder-1.svg",
-        alt: "BitLink cover",
+        alt: "Search Engine cover",
       },
     ],
   },
