@@ -43,11 +43,11 @@ const projectHighlights = [
     ],
   },
   {
-    title: "search-engine",
-    period: "2023-02 → 2023-03",
+    title: "bitlink",
+    period: "2024-03 → 2024-06",
     bullets: [
-      "Engineered a Python search engine indexing 56,000+ web pages.",
-      "Reduced average query response time by 35% via custom tokenization and algorithm optimization.",
+      "Shipped a full-stack Angular + Node.js social platform with real-time messaging and social interactions.",
+      "Implemented secure auth with Passport.js and BCrypt; designed a responsive UI in Angular + TypeScript.",
     ],
   },
   {
@@ -59,11 +59,11 @@ const projectHighlights = [
     ],
   },
   {
-    title: "bitlink",
-    period: "2024-03 → 2024-06",
+    title: "search-engine",
+    period: "2023-02 → 2023-03",
     bullets: [
-      "Shipped a full-stack Angular + Node.js social platform with real-time messaging and social interactions.",
-      "Implemented secure auth with Passport.js and BCrypt; designed a responsive UI in Angular + TypeScript.",
+      "Engineered a Python search engine indexing 56,000+ web pages.",
+      "Reduced average query response time by 35% via custom tokenization and algorithm optimization.",
     ],
   },
 ];
