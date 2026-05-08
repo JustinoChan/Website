@@ -76,6 +76,21 @@ export default async function ProjectDetailPage({
       ),
     });
   }
+  if (project.writeupUrl) {
+    meta.push({
+      label: "writeup",
+      value: (
+        <a
+          href={project.writeupUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-[var(--color-accent)] transition-colors underline decoration-dotted underline-offset-4"
+        >
+          AscensionAI_Technical_Writeup.pdf ↓
+        </a>
+      ),
+    });
+  }
 
   return (
     <article className="mx-auto max-w-3xl px-6 pt-10 pb-16 sm:pt-14">

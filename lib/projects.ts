@@ -12,6 +12,7 @@ export type Project = {
   cover: string;
   liveUrl?: string;
   repoUrl?: string;
+  writeupUrl?: string;
   media: MediaItem[];
 };
 
@@ -23,7 +24,7 @@ export const projects: Project[] = [
     tagline:
       "Reinforcement learning agent that learns to play Slay the Spire via behavior cloning and PPO.",
     description:
-      "AscensionAI is a reinforcement learning project for training an AI agent to play Slay the Spire through a Gymnasium-style environment, Communication Mod integration, behavior cloning warm starts, PPO fine-tuning, action masking, dense reward shaping, and parallel rollout workers.\n\nThe observation encoder converts the full game state into a 530-float vector covering player stats, hand cards, monster identity/behavior/intents/powers, screen context, relic/potion inventories, deck profile, and map path lookahead. It includes a built-in database of all 66 STS monsters with behavioral flags and identity embeddings, so the agent knows enemy patterns from the first encounter.\n\nThe action space covers 134 discrete actions — targeted/untargeted card plays, end turn, potions, choice selection, proceed, and leave — with illegal actions masked out per game state. Dense per-step rewards shape learning for gold, relics, max HP, floor progression, combat damage, card management, and act advancement, with extra incentives for priority targets like Gremlin Nob and Cultist.\n\nTraining follows a three-stage pipeline: behavior cloning from a hand-coded heuristic, PPO fine-tuning with GAE advantages and KL early stopping, then parallel scaling across multiple STS instances with an offline trainer. A GUI Control Panel auto-detects hardware, manages workers, and displays live logs. The project also supports multi-machine collaboration where rollout data is pooled across contributors.",
+      "AscensionAI is an end-to-end reinforcement learning pipeline for training an AI agent to play Slay the Spire — built with PyTorch, Gymnasium, and a live game integration via Communication Mod.\n\nBuilt a 530-dimensional structured observation encoder covering player stats, hand cards, monster identity/behavior/intents/powers, screen context, relic/potion inventories, deck profile, and map path lookahead. Embedded a database of all 66 STS enemies (behavioral flags, identity embeddings) directly into the observation space so the agent knows enemy patterns from the first encounter — without needing thousands of games to rediscover that Gremlin Nob punishes skills or Cultist scales strength every turn.\n\nImplemented PPO from scratch with clipped surrogate objective, GAE advantage estimation, target-KL early stopping, entropy annealing, and a BC anchor loss to prevent catastrophic forgetting during fine-tuning. The 134-action masked policy enforces legal-action constraints at every step, and dense per-step reward shaping covers gold, relics, HP, floor progression, and priority target incentives.\n\nDesigned a parallel rollout architecture: multiple concurrent worker processes feed a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection. Engineered for 24+ hour autonomous runs — atomic checkpoint saves, resumable BC progress, crash detection, orphan-process cleanup, and infinite-loop recovery. A Tkinter GUI control panel auto-detects hardware, recommends worker counts, and streams live logs from all processes.",
     tags: [
       "Python",
       "PyTorch",
@@ -35,6 +36,7 @@ export const projects: Project[] = [
     period: "Nov 2025 — Present",
     cover: "/projects/ascension-ai/cover.jpg",
     repoUrl: "https://github.com/JustinoChan/AscensionAI",
+    writeupUrl: "/projects/ascension-ai/writeup.pdf",
     media: [
       {
         type: "image",

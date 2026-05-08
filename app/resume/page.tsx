@@ -36,9 +36,10 @@ const projectHighlights = [
     title: "ascension-ai",
     period: "2025-11 → present",
     bullets: [
-      "Built a reinforcement learning agent to play Slay the Spire using behavior cloning warm-starts and PPO fine-tuning.",
-      "Designed a 530-dimensional observation encoder with a built-in database of all 66 STS monsters, 134-action masked action space, and dense reward shaping.",
-      "Implemented parallel rollout workers across multiple live game instances with an offline PPO trainer and a GUI control panel for long-running autonomous training.",
+      "Built end-to-end RL pipeline with 530-d structured observation encoder and 134-action masked policy for a real-time game environment.",
+      "Implemented PPO from scratch with clipped objective, GAE advantages, target-KL early stopping, and a BC anchor loss to prevent catastrophic forgetting during fine-tuning.",
+      "Designed parallel rollout architecture: 4 concurrent worker processes feeding a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection.",
+      "Engineered for 24+ hour autonomous runs: atomic checkpoint saves, resumable progress, crash detection, orphan-process cleanup, and infinite-loop recovery.",
     ],
   },
   {
@@ -71,11 +72,15 @@ const skillGroups: { label: string; items: string }[] = [
   { label: "languages", items: "java, python, c, c++, javascript, typescript" },
   { label: "web", items: "html, css, angular, react, django" },
   { label: "data", items: "sql, mongodb, firebase" },
-  { label: "ml/ai", items: "reinforcement learning, ppo, behavior cloning, gymnasium, pytorch" },
+  {
+    label: "ml/ai",
+    items:
+      "reinforcement learning, ppo, behavior cloning, gae, actor-critic, action masking, reward shaping, pytorch, gymnasium",
+  },
   {
     label: "engineering",
     items:
-      "software development, software testing, algorithms, design principles, design patterns, api integrations",
+      "distributed systems, ipc, parallel workers, atomic checkpointing, crash recovery, software testing, algorithms, design patterns, api integrations",
   },
   { label: "methods", items: "agile/scrum, devops practices, project management" },
 ];
