@@ -160,7 +160,7 @@ $ mail justinochan16@gmail.com`}
 
       <Section heading="VERSION">
         <p className="text-[var(--color-fg-muted)]">
-          portfolio v1.0 · last updated 2026-04-21
+          portfolio v1.1 · last updated 2026-05-07
         </p>
       </Section>
 
