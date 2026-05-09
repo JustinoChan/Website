@@ -29,7 +29,6 @@ const stack: { label: string; items: string[] }[] = [
 
 const contact: { label: string; value: string; href?: string }[] = [
   { label: "email", value: "justinochan16@gmail.com", href: "mailto:justinochan16@gmail.com" },
-  { label: "phone", value: "925-483-3178", href: "tel:9254833178" },
   { label: "location", value: "brentwood, ca" },
   { label: "github", value: "github.com/JustinoChan", href: "https://github.com/JustinoChan" },
 ];

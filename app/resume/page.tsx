@@ -6,7 +6,6 @@ export const metadata = { title: "resume — justin-chan(1)" };
 const meta: { label: string; value: string; href?: string }[] = [
   { label: "name", value: "justin chan" },
   { label: "email", value: "justinochan16@gmail.com", href: "mailto:justinochan16@gmail.com" },
-  { label: "phone", value: "925-483-3178", href: "tel:9254833178" },
   { label: "location", value: "brentwood, ca" },
 ];
 
