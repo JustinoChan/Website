@@ -44,7 +44,7 @@ export default function HomePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 mt-10">
         {/* LEFT — primary content */}
-        <div>
+        <div className="min-w-0">
           <h1 className="text-[var(--color-fg)] text-[40px] sm:text-[44px] leading-[1.05] tracking-tight">
             justin chan
             <span className="text-[var(--color-accent)]">.</span>
