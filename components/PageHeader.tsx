@@ -8,27 +8,21 @@ export default function PageHeader({
   description?: string;
 }) {
   return (
-    <header className="mx-auto max-w-5xl px-6 pt-12 pb-8 sm:pt-16">
+    <header className="mx-auto max-w-3xl px-6 pt-10 pb-6 sm:pt-14">
       {eyebrow && (
-        <p className="text-xs text-[var(--color-fg-muted)]">
+        <p className="text-[11px] text-[var(--color-fg-muted)] uppercase tracking-[0.18em]">
           <span className="text-[var(--color-accent)]">$</span> man{" "}
           <span className="text-[var(--color-fg)]">{eyebrow.toLowerCase()}</span>
         </p>
       )}
-      <h1 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight">
+      <h1 className="mt-3 text-3xl sm:text-[32px] tracking-tight leading-tight">
         {title}
       </h1>
       {description && (
-        <p className="mt-3 max-w-3xl text-[var(--color-fg-muted)]">
+        <p className="mt-2 max-w-2xl text-[var(--color-fg-muted)]">
           {description}
         </p>
       )}
-      <div
-        aria-hidden
-        className="mt-6 text-[var(--color-line)] select-none overflow-hidden whitespace-nowrap"
-      >
-        {"─".repeat(160)}
-      </div>
     </header>
   );
 }

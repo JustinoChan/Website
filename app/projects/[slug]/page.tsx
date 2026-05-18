@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject, projects } from "@/lib/projects";
+import Rule, { ManStrip } from "@/components/Rule";
+import ProjectSpec from "@/components/ProjectSpec";
 
 type Params = Promise<{ slug: string }>;
 
@@ -19,15 +21,6 @@ export async function generateMetadata({ params }: { params: Params }) {
   };
 }
 
-const Rule = () => (
-  <div
-    aria-hidden
-    className="text-[var(--color-line)] select-none overflow-hidden whitespace-nowrap"
-  >
-    {"─".repeat(200)}
-  </div>
-);
-
 export default async function ProjectDetailPage({
   params,
 }: {
@@ -37,116 +30,143 @@ export default async function ProjectDetailPage({
   const project = getProject(slug);
   if (!project) notFound();
 
-  const meta: { label: string; value: React.ReactNode }[] = [
-    { label: "project", value: project.slug },
-    { label: "title", value: project.title },
-    { label: "period", value: project.period },
-    {
-      label: "tags",
-      value: project.tags.map((t) => `[${t.toLowerCase()}]`).join(" "),
-    },
-  ];
-  if (project.repoUrl) {
-    meta.push({
-      label: "repo",
-      value: (
-        <a
-          href={project.repoUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="hover:text-[var(--color-accent)] transition-colors underline decoration-dotted underline-offset-4"
-        >
-          {project.repoUrl.replace(/^https?:\/\//, "")}
-        </a>
-      ),
-    });
-  }
-  if (project.liveUrl) {
-    meta.push({
-      label: "live",
-      value: (
-        <a
-          href={project.liveUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="hover:text-[var(--color-accent)] transition-colors underline decoration-dotted underline-offset-4"
-        >
-          {project.liveUrl.replace(/^https?:\/\//, "")}
-        </a>
-      ),
-    });
-  }
-  if (project.writeupUrl) {
-    meta.push({
-      label: "writeup",
-      value: (
-        <a
-          href={project.writeupUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="hover:text-[var(--color-accent)] transition-colors underline decoration-dotted underline-offset-4"
-        >
-          AscensionAI_Technical_Writeup.pdf ↓
-        </a>
-      ),
-    });
-  }
+  const hasSpec = Boolean(project.spec);
+  const statusLabel =
+    project.status === "active"
+      ? "ACTIVE"
+      : project.status === "shipped"
+      ? "SHIPPED"
+      : "ARCHIVED";
 
   return (
-    <article className="mx-auto max-w-3xl px-6 pt-10 sm:pt-14">
-      <Link
-        href="/projects"
-        className="text-xs text-[var(--color-fg-muted)] hover:text-[var(--color-accent)] transition-colors"
-      >
-        <span className="text-[var(--color-accent)]">$</span> cd ../
-        <span className="ml-2">← back to projects</span>
-      </Link>
+    <article className="mx-auto max-w-3xl px-6 pt-10 pb-4">
+      <ManStrip
+        left={`${project.slug}(7)`}
+        center="project specification"
+        right={`${project.slug}(7)`}
+      />
+      <Rule />
 
-      <header className="mt-8">
-        <p className="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
-          project specification
+      {/* Breadcrumb */}
+      <div className="mt-8 flex items-baseline gap-3 text-[11px] text-[var(--color-fg-muted)]">
+        <span className="text-[var(--color-accent)]">$</span>
+        <Link
+          href="/projects"
+          className="hover:text-[var(--color-accent)] transition-colors"
+        >
+          cd ../
+        </Link>
+        <span>← back to projects</span>
+      </div>
+
+      {/* Title */}
+      <header className="mt-6">
+        <div className="flex items-baseline justify-between flex-wrap gap-4">
+          <h1 className="text-[36px] tracking-tight leading-none">
+            <span className="text-[var(--color-fg-muted)]">./</span>
+            {project.slug}
+            <span className="text-[var(--color-fg-muted)]">/</span>
+          </h1>
+          <span className="text-[11px] text-[var(--color-accent)] flex items-center gap-1.5">
+            {project.status === "active" && (
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />
+            )}
+            {statusLabel} · {project.period}
+          </span>
+        </div>
+        <p className="mt-3 text-[var(--color-fg-muted)] text-[15px] max-w-2xl">
+          {project.tagline}
         </p>
-        <Rule />
-        <dl className="mt-3 space-y-1.5">
-          {meta.map((m) => (
-            <div
-              key={m.label}
-              className="grid grid-cols-[6rem_1fr] gap-x-4 items-baseline"
-            >
-              <dt className="text-[var(--color-accent)]">[{m.label}]</dt>
-              <dd className="break-words">{m.value}</dd>
-            </div>
-          ))}
-        </dl>
-        <Rule />
       </header>
 
-      <section className="mt-10">
-        <h2 className="flex items-baseline gap-3">
-          <span className="text-[var(--color-accent)]">§01</span>
-          <span className="uppercase tracking-wider">description</span>
-        </h2>
-        <Rule />
-        <div className="mt-4 pl-6 space-y-4 text-[var(--color-fg-muted)]">
-          {project.description.split("\n\n").map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
-        </div>
-      </section>
+      {/* Quick links bar */}
+      <div className="mt-5 flex flex-wrap gap-2">
+        {project.repoUrl && (
+          <a
+            href={project.repoUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[12px] border border-[var(--color-line)] px-3 py-1.5 hover:border-[var(--color-fg)] hover:text-[var(--color-fg)] transition-colors text-[var(--color-fg-muted)]"
+          >
+            <span className="text-[var(--color-accent)]">git</span>{" "}
+            {project.repoUrl.replace(/^https?:\/\//, "")}
+          </a>
+        )}
+        {project.liveUrl && (
+          <a
+            href={project.liveUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[12px] border border-[var(--color-line)] px-3 py-1.5 hover:border-[var(--color-fg)] hover:text-[var(--color-fg)] transition-colors text-[var(--color-fg-muted)]"
+          >
+            <span className="text-[var(--color-accent)]">open</span>{" "}
+            {project.liveUrl.replace(/^https?:\/\//, "")}
+          </a>
+        )}
+        {project.writeupUrl && (
+          <a
+            href={project.writeupUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[12px] border border-[var(--color-line)] px-3 py-1.5 hover:border-[var(--color-fg)] hover:text-[var(--color-fg)] transition-colors text-[var(--color-fg-muted)]"
+          >
+            <span className="text-[var(--color-accent)]">writeup ↓</span>{" "}
+            technical pdf
+          </a>
+        )}
+      </div>
 
+      {/* Tag row */}
+      <div className="mt-4 flex flex-wrap gap-x-2 gap-y-1 text-xs text-[var(--color-fg-muted)]">
+        {project.tags.map((t) => (
+          <span key={t}>
+            [
+            <span className="text-[var(--color-fg)]">{t.toLowerCase()}</span>
+            ]
+          </span>
+        ))}
+      </div>
+
+      {/* If project has a rich spec, render the spec sheet — otherwise fall back to plain description */}
+      {hasSpec ? (
+        <ProjectSpec spec={project.spec!} />
+      ) : (
+        <section className="mt-10">
+          <h2 className="flex items-baseline gap-3">
+            <span className="text-[var(--color-accent)]">§01</span>
+            <span className="uppercase tracking-[0.18em] text-[12px]">
+              description
+            </span>
+          </h2>
+          <Rule className="mt-2" />
+          <div className="mt-4 pl-6 space-y-4 text-[var(--color-fg-muted)]">
+            {project.description.split("\n\n").map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Gallery */}
       {project.media.length > 0 && (
         <section className="mt-12">
           <h2 className="flex items-baseline gap-3">
-            <span className="text-[var(--color-accent)]">§02</span>
-            <span className="uppercase tracking-wider">gallery</span>
+            <span className="text-[var(--color-accent)]">§G</span>
+            <span className="uppercase tracking-[0.18em] text-[12px]">
+              gallery
+            </span>
           </h2>
-          <Rule />
+          <Rule className="mt-2" />
           <div className="mt-6 pl-6 grid gap-6">
             {project.media.map((m, i) =>
               m.type === "image" ? (
                 <figure key={i}>
                   <p className="text-xs text-[var(--color-fg-muted)] mb-2">
-                    [<span className="text-[var(--color-accent)]">img.{String(i + 1).padStart(2, "0")}</span>] {m.alt}
+                    [
+                    <span className="text-[var(--color-accent)]">
+                      img.{String(i + 1).padStart(2, "0")}
+                    </span>
+                    ] {m.alt}
                   </p>
                   <div className="relative aspect-[16/10] overflow-hidden border border-[var(--color-line)] bg-[var(--color-bg-soft)]">
                     <Image
@@ -161,7 +181,11 @@ export default async function ProjectDetailPage({
               ) : (
                 <figure key={i}>
                   <p className="text-xs text-[var(--color-fg-muted)] mb-2">
-                    [<span className="text-[var(--color-accent)]">vid.{String(i + 1).padStart(2, "0")}</span>] {m.alt}
+                    [
+                    <span className="text-[var(--color-accent)]">
+                      vid.{String(i + 1).padStart(2, "0")}
+                    </span>
+                    ] {m.alt}
                   </p>
                   <video
                     src={m.src}
@@ -177,6 +201,17 @@ export default async function ProjectDetailPage({
           </div>
         </section>
       )}
+
+      <div className="mt-16">
+        <Rule />
+        <div className="mt-1">
+          <ManStrip
+            left={`${project.slug}(7)`}
+            center="project specification"
+            right={`${project.slug}(7)`}
+          />
+        </div>
+      </div>
     </article>
   );
 }

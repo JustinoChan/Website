@@ -1,4 +1,5 @@
 import PageHeader from "@/components/PageHeader";
+import Rule from "@/components/Rule";
 
 export const metadata = { title: "about — justin-chan(1)" };
 
@@ -16,6 +17,10 @@ const stack: { label: string; items: string[] }[] = [
     items: ["sql", "mysql", "mongodb", "firebase"],
   },
   {
+    label: "ml/ai",
+    items: ["pytorch", "gymnasium", "ppo", "behavior cloning", "action masking"],
+  },
+  {
     label: "practices",
     items: [
       "agile/scrum",
@@ -28,9 +33,17 @@ const stack: { label: string; items: string[] }[] = [
 ];
 
 const contact: { label: string; value: string; href?: string }[] = [
-  { label: "email", value: "justinochan16@gmail.com", href: "mailto:justinochan16@gmail.com" },
+  {
+    label: "email",
+    value: "justinochan16@gmail.com",
+    href: "mailto:justinochan16@gmail.com",
+  },
   { label: "location", value: "brentwood, ca" },
-  { label: "github", value: "github.com/JustinoChan", href: "https://github.com/JustinoChan" },
+  {
+    label: "github",
+    value: "github.com/JustinoChan",
+    href: "https://github.com/JustinoChan",
+  },
 ];
 
 const Section = ({
@@ -45,15 +58,12 @@ const Section = ({
   <section className="mt-12 first:mt-0">
     <h2 className="flex items-baseline gap-3">
       <span className="text-[var(--color-accent)]">§{index}</span>
-      <span className="uppercase tracking-wider">{heading}</span>
+      <span className="uppercase tracking-[0.18em] text-[12px]">
+        {heading}
+      </span>
     </h2>
-    <div
-      aria-hidden
-      className="mt-2 text-[var(--color-line)] select-none overflow-hidden whitespace-nowrap"
-    >
-      {"─".repeat(200)}
-    </div>
-    <div className="mt-4">{children}</div>
+    <Rule className="mt-2" />
+    <div className="mt-4 pl-6">{children}</div>
   </section>
 );
 
@@ -69,9 +79,8 @@ export default function AboutPage() {
         <Section index="01" heading="background">
           <div className="space-y-4 text-[var(--color-fg-muted)]">
             <p>
-              I&apos;m{" "}
-              <span className="text-[var(--color-fg)]">Justin</span>, a software
-              engineer based in Brentwood, CA. I graduated from{" "}
+              I&apos;m <span className="text-[var(--color-fg)]">Justin</span>, a
+              software engineer based in Brentwood, CA. I graduated from{" "}
               <span className="text-[var(--color-fg)]">UC Irvine</span> in March
               2025 with a degree in Software Engineering, where I focused on
               algorithms, data structures, and full-stack web development.
@@ -118,7 +127,29 @@ export default function AboutPage() {
           </dl>
         </Section>
 
-        <Section index="03" heading="contact">
+        <Section index="03" heading="education">
+          <div>
+            <div className="flex items-baseline justify-between flex-wrap gap-2">
+              <h3 className="text-[var(--color-fg)]">
+                University of California, Irvine
+              </h3>
+              <p className="text-[11px] text-[var(--color-fg-muted)]">
+                [2021-09 → 2025-03]
+              </p>
+            </div>
+            <p className="text-[var(--color-fg-muted)]">
+              B.S. in Software Engineering · GPA 3.459
+            </p>
+            <p className="text-[var(--color-fg-muted)] mt-3 text-[13px]">
+              <span className="text-[var(--color-accent)]">[coursework]</span>{" "}
+              algorithms, internet applications, data structures, software
+              design, HCI, operating systems, information retrieval, databases,
+              software testing.
+            </p>
+          </div>
+        </Section>
+
+        <Section index="04" heading="contact">
           <dl className="space-y-2">
             {contact.map((row) => (
               <div

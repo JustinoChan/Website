@@ -1,11 +1,16 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
+import Rule from "@/components/Rule";
 
 export const metadata = { title: "resume — justin-chan(1)" };
 
 const meta: { label: string; value: string; href?: string }[] = [
   { label: "name", value: "justin chan" },
-  { label: "email", value: "justinochan16@gmail.com", href: "mailto:justinochan16@gmail.com" },
+  {
+    label: "email",
+    value: "justinochan16@gmail.com",
+    href: "mailto:justinochan16@gmail.com",
+  },
   { label: "location", value: "brentwood, ca" },
 ];
 
@@ -81,17 +86,11 @@ const skillGroups: { label: string; items: string }[] = [
     items:
       "distributed systems, ipc, parallel workers, atomic checkpointing, crash recovery, software testing, algorithms, design patterns, api integrations",
   },
-  { label: "methods", items: "agile/scrum, devops practices, project management" },
+  {
+    label: "methods",
+    items: "agile/scrum, devops practices, project management",
+  },
 ];
-
-const Rule = () => (
-  <div
-    aria-hidden
-    className="text-[var(--color-line)] select-none overflow-hidden whitespace-nowrap"
-  >
-    {"─".repeat(200)}
-  </div>
-);
 
 const Section = ({
   index,
@@ -108,11 +107,13 @@ const Section = ({
     <div className="flex items-baseline justify-between gap-3">
       <h2 className="flex items-baseline gap-3">
         <span className="text-[var(--color-accent)]">§{index}</span>
-        <span className="uppercase tracking-wider">{heading}</span>
+        <span className="uppercase tracking-[0.18em] text-[12px]">
+          {heading}
+        </span>
       </h2>
       {right}
     </div>
-    <Rule />
+    <Rule className="mt-2" />
     <div className="mt-4 pl-6">{children}</div>
   </section>
 );
@@ -127,7 +128,7 @@ export default function ResumePage() {
       />
       <article className="mx-auto max-w-3xl px-6">
         <header>
-          <p className="text-xs text-[var(--color-fg-muted)] uppercase tracking-wider">
+          <p className="text-xs text-[var(--color-fg-muted)] uppercase tracking-[0.18em]">
             personal record
           </p>
           <Rule />
@@ -224,7 +225,9 @@ export default function ResumePage() {
                     <span className="text-[var(--color-accent)]">
                       §03.{String(i + 1).padStart(2, "0")}
                     </span>{" "}
-                    <span className="text-[var(--color-fg)]">./{p.title}/</span>
+                    <span className="text-[var(--color-fg)]">
+                      ./{p.title}/
+                    </span>
                   </h3>
                   <p className="text-xs text-[var(--color-fg-muted)]">
                     [{p.period}]
