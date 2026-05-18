@@ -1,8 +1,11 @@
 # Portfolio
 
-A modern personal portfolio built with **Next.js 15**, **TypeScript**, and **Tailwind CSS v4**. Includes a hero landing page, About, Resume, and Projects sections with image/video gallery support.
+Personal portfolio site for Justin Chan, built with Next.js 15, React 19,
+TypeScript, and Tailwind CSS v4. The app uses the App Router and is configured
+for static export through `next.config.mjs`, so `npm run build` emits the
+publishable site to `out/`.
 
-## Quick start
+## Quick Start
 
 ```bash
 npm install
@@ -11,86 +14,94 @@ npm run dev
 
 Open http://localhost:3000.
 
+On Windows PowerShell, prefer the `.cmd` entrypoints if script execution policy
+blocks the npm wrappers:
+
+```powershell
+npm.cmd run dev
+npm.cmd run build
+npx.cmd tsc --noEmit --incremental false
+```
+
+## Current Site
+
+- Home page with terminal/manual styling, selected work, status panels, and
+  current availability.
+- Sitewide command palette in `components/CommandPalette.tsx`.
+- About, Resume, Projects, and dynamic Project detail routes.
+- Project content centralized in `lib/projects.ts`.
+- Static resume download at `public/resume.pdf`.
+- Static project media and writeups under `public/projects/`.
+
 ## Structure
 
-```
+```text
 app/
-  layout.tsx           Root layout (nav + footer)
-  page.tsx             Home / hero
-  about/page.tsx       About me
-  resume/page.tsx      Experience & education
+  layout.tsx              Root layout, metadata, nav, footer, command palette
+  page.tsx                Home page
+  about/page.tsx          Biography, stack, education, contact
+  resume/page.tsx         In-site resume content and PDF download
   projects/
-    page.tsx           Project grid
-    [slug]/page.tsx    Project detail with media gallery
-components/            Reusable UI (Nav, Footer, ProjectCard, ...)
-lib/projects.ts        Project data — edit this to add your projects
-public/                Static assets (images, videos, resume.pdf)
-  projects/            Project media — drop screenshots/demos here
+    page.tsx              Project grid
+    [slug]/page.tsx       Project detail pages
+components/               Reusable UI components
+lib/projects.ts           Project data, media, and detailed specs
+public/
+  resume.pdf              Downloadable resume
+  projects/               Project images, PDFs, and markdown writeups
 ```
 
-## Customizing
+## Editing Content
 
-1. **Your name & meta** — search `Your Name` and `you@example.com` across the project and replace.
-2. **Projects** — edit [lib/projects.ts](lib/projects.ts). Drop screenshots/videos into `public/projects/<slug>/` and reference them as `/projects/<slug>/file.png`.
-3. **Resume PDF** — drop your file at `public/resume.pdf`. The download button on the Resume page links to it.
-4. **Social links** — update [components/Footer.tsx](components/Footer.tsx) and [app/about/page.tsx](app/about/page.tsx).
-5. **Colors** — tweak the CSS variables in [app/globals.css](app/globals.css) under `@theme`.
+1. Update home page copy and status panels in `app/page.tsx`.
+2. Update biography and contact details in `app/about/page.tsx`.
+3. Update the in-site resume in `app/resume/page.tsx`.
+4. Add or edit projects in `lib/projects.ts`.
+5. Place project assets in `public/projects/<slug>/` and reference them as
+   `/projects/<slug>/file.ext`.
+6. Replace the downloadable resume at `public/resume.pdf`.
+7. Adjust theme variables and global styling in `app/globals.css`.
 
-## Adding videos to a project
+## Media
 
-In `lib/projects.ts`, add an entry to a project's `media` array:
+Project media entries live in each project's `media` array:
 
 ```ts
-{ type: "video", src: "/projects/my-app/demo.mp4", poster: "/projects/my-app/cover.png", alt: "Demo" }
+{ type: "image", src: "/projects/my-project/cover.jpg", alt: "Project cover" }
 ```
 
-Place the file at `public/projects/my-app/demo.mp4`. MP4 (H.264) is the safest format for browser playback.
+Video entries can include a poster:
+
+```ts
+{ type: "video", src: "/projects/my-project/demo.mp4", poster: "/projects/my-project/cover.jpg", alt: "Project demo" }
+```
+
+Use browser-friendly formats such as JPG/PNG/WebP for images and MP4 (H.264) for
+video.
+
+## Validation
+
+```powershell
+npx.cmd tsc --noEmit --incremental false
+npm.cmd run build
+```
+
+`npm run build` runs `next build` and writes the static export to `out/`.
 
 ## Deployment
 
-The site builds to a Node app by default and can also be exported as fully static files.
+The site is already configured for static export:
 
-### Option A — Vercel (easiest)
+1. Run `npm.cmd run build`.
+2. Publish the generated `out/` directory to GitHub Pages, S3, nginx, or any
+   static host.
 
-1. Push this repo to GitHub.
-2. Import the repo at https://vercel.com/new.
-3. Vercel auto-detects Next.js — no config needed. Done.
-
-### Option B — Netlify
-
-1. Push to GitHub, then "Add new site → Import an existing project" on Netlify.
-2. Build command: `npm run build` · Publish directory: `.next` (Netlify's Next.js plugin handles the rest).
-
-### Option C — Static export (GitHub Pages, S3, nginx, any static host)
-
-1. Open [next.config.mjs](next.config.mjs) and uncomment `output: 'export'` and set `images.unoptimized: true`.
-2. Run `npm run build`. The static site is emitted to `out/`.
-3. Upload `out/` to any static host. For nginx, just point `root` at the directory.
-
-### Option D — Self-hosted Node server (VPS, Docker, etc.)
-
-```bash
-npm install
-npm run build
-npm start         # serves on port 3000
-```
-
-Put nginx/Caddy in front for HTTPS. Minimal Dockerfile:
-
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
+For a local production preview of the exported files, serve the `out/` directory
+with any static file server.
 
 ## Tech
 
-- [Next.js 15](https://nextjs.org) (App Router)
+- [Next.js 15](https://nextjs.org) with App Router
 - [React 19](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
 - [Tailwind CSS v4](https://tailwindcss.com)
