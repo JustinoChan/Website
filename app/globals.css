@@ -11,6 +11,7 @@
 
 html,
 body {
+  overflow-x: hidden;
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular",
