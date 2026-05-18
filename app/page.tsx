@@ -136,7 +136,7 @@ export default function HomePage() {
             <div className="grid grid-cols-[7rem_1fr] gap-x-4 gap-y-1.5 items-baseline">
               <span className="text-[var(--color-accent)]">[building]</span>
               <span className="text-[var(--color-fg)]">
-                AscensionAI · RL agent for Slay the Spire
+                <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="hover:text-[var(--color-accent)] transition-colors">AscensionAI</a> · RL agent for Slay the Spire
               </span>
               <span className="text-[var(--color-accent)]">[reading]</span>
               <span className="text-[var(--color-fg-muted)]">
@@ -171,8 +171,8 @@ export default function HomePage() {
 
           <SysCard title="// now">
             <p className="text-[var(--color-fg-muted)] text-xs">
-              <span className="text-[var(--color-accent)]">building</span> ·
-              AscensionAI, an RL agent that plays Slay the Spire end-to-end
+              <span className="text-[var(--color-accent)]">building</span> ·{" "}
+              <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">AscensionAI</a>, an RL agent that plays Slay the Spire end-to-end
               via PPO + behavior cloning.
             </p>
             <p className="text-[var(--color-fg-muted)] text-xs mt-2">

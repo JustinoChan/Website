@@ -91,11 +91,11 @@ export default function AboutPage() {
               shipping responsive UIs that feel good to use, to training
               reinforcement learning agents on real games. My most recent
               project is{" "}
-              <span className="text-[var(--color-fg)]">AscensionAI</span>, a
-              Python RL system that learns to play Slay the Spire through
+              <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">AscensionAI</a>, a
+              distributed RL system that trains an AI to play Slay the Spire through
               behavior cloning and PPO fine-tuning, with a 530-dimensional
-              observation encoder, action masking over 134 discrete actions,
-              and parallel rollout workers across multiple live game instances.
+              observation encoder, a 66-monster knowledge base, action masking over 134 discrete actions,
+              and parallel rollout workers feeding a central offline trainer across multiple live game instances.
             </p>
             <p>
               Other projects include a search engine over 56,000+ web pages, a
