@@ -9,6 +9,11 @@
   --color-line: #c9c0ac;
 }
 
+/* Reserve scrollbar space so content doesn't shift between pages */
+html {
+  scrollbar-gutter: stable;
+}
+
 html,
 body {
   overflow-x: hidden;
