@@ -74,6 +74,7 @@ export default function HomePage() {
             </Link>
             <a
               href="/resume.pdf"
+              download
               className="border border-[var(--color-line)] px-3 py-1.5 text-[12px] hover:border-[var(--color-fg)] hover:text-[var(--color-fg)] transition-colors text-[var(--color-fg-muted)]"
             >
               wget resume.pdf
