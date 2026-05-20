@@ -65,7 +65,7 @@ export const projects: Project[] = [
     tagline:
       "Reinforcement learning agent that learns to play Slay the Spire via behavior cloning and PPO.",
     description:
-      "AscensionAI is a distributed reinforcement learning system that trains an AI agent to play Slay the Spire by wrapping a live desktop game instance within a training framework — built with PyTorch, Gymnasium, and live game integration via CommunicationMod.\n\nBuilt a 530-dimensional structured observation encoder covering player stats, hand cards, monster identity/behavior/intents/powers, screen context, relic/potion inventories, deck profile, and a BFS map path lookahead. Embedded a database of all 66 STS enemies (7 behavioral flags + 8-d identity embeddings) directly into the observation space so the agent knows enemy patterns from the first encounter — without needing thousands of games to rediscover that Gremlin Nob punishes skills or Cultist scales strength every turn.\n\nImplemented PPO from scratch with clipped surrogate objective, GAE advantage estimation, target-KL early stopping, entropy annealing, and a BC anchor loss to prevent catastrophic forgetting during fine-tuning. The 134-action masked policy enforces legal-action constraints at every step, and dense per-step reward shaping covers gold, relics, HP, floor progression, and priority target incentives (spawner kills rewarded at 11× base).\n\nDesigned a parallel rollout architecture: multiple concurrent worker processes feed a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection. Completed 4,136 PPO rollout games across 515 update batches with only 6 stale rollouts. BC warm-start achieves 84.9% validation accuracy across 86K labeled transitions, and the heuristic baseline reaches floor 15.8 avg with 26% Act 2 rate. Engineered for 24+ hour autonomous runs — atomic checkpoint saves, resumable BC progress, crash detection, orphan-process cleanup, and infinite-loop recovery. Includes an interactive results dashboard and reproducible experiment reports hosted on GitHub Pages.",
+      "AscensionAI is a distributed reinforcement learning system that trains an AI agent to play Slay the Spire by wrapping a live desktop game instance within a training framework — built with PyTorch, Gymnasium, and live game integration via CommunicationMod.\n\nBuilt a 530-dimensional structured observation encoder covering player stats, hand cards, monster identity/behavior/intents/powers, screen context, relic/potion inventories, deck profile, and a BFS map path lookahead. Embedded a database of all 66 STS enemies (7 behavioral flags + 8-d identity embeddings) directly into the observation space so the agent knows enemy patterns from the first encounter — without needing thousands of games to rediscover that Gremlin Nob punishes skills or Cultist scales strength every turn.\n\nImplemented PPO from scratch with clipped surrogate objective, GAE advantage estimation, target-KL early stopping, entropy annealing, and a BC anchor loss to prevent catastrophic forgetting during fine-tuning. The 134-action masked policy enforces legal-action constraints at every step, and dense per-step reward shaping covers gold, relics, HP, floor progression, and priority target incentives (spawner kills rewarded at 11× base).\n\nDesigned a parallel rollout architecture: multiple concurrent worker processes feed a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection. Completed 4,136 PPO rollout games across 515 update batches with only 6 stale rollouts. BC warm-start achieves 84.95% validation accuracy across 86,297 labeled transitions, and the heuristic baseline reaches floor 15.78 avg with a shaped reward of 8.44 and 26% Act 2 rate. The latest 150-game PPO eval averages floor 14.70. Engineered for 24+ hour autonomous runs — atomic checkpoint saves, resumable BC progress, crash detection, orphan-process cleanup, and infinite-loop recovery. Includes an interactive results dashboard and reproducible experiment reports hosted on GitHub Pages.",
     tags: [
       "Python",
       "PyTorch",
@@ -97,8 +97,9 @@ export const projects: Project[] = [
         { label: "observation", value: "530-d structured vector · 66-monster knowledge base" },
         { label: "action space", value: "134 discrete actions (legal-action masked)" },
         { label: "network", value: "530→256→256→{134 logits + 1 value} · ~235K params · CPU-only" },
-        { label: "training scale", value: "4,136 rollout games · 515 PPO updates · 86K BC transitions" },
-        { label: "baseline", value: "heuristic avg floor 15.8 · 26% Act 2 rate · BC val acc 84.9%" },
+        { label: "training scale", value: "4,136 rollout games · 515 PPO updates · 86,297 BC transitions" },
+        { label: "baseline", value: "heuristic avg floor 15.78 · shaped reward 8.44 · 26% Act 2 rate · BC val acc 84.95%" },
+        { label: "PPO eval", value: "avg floor 14.70 (latest 150-game eval)" },
       ],
       problem: [
         "Slay the Spire is hard for RL agents for three reasons: the observation space is unstructured (cards, relics, intents — all categorical), the action space is large and conditionally legal, and reward is sparse (you only really learn if you survive an act).",
@@ -169,9 +170,9 @@ export const projects: Project[] = [
       training: {
         title: "training",
         paras: [
-          "Behavior cloning warm-start from a hand-coded heuristic (150–200 demo games → 86K labeled transitions, 84.9% validation accuracy). BC is resumable — per-game checkpointing survives STS crashes mid-collection.",
+          "Behavior cloning warm-start from a hand-coded heuristic (150–200 demo games → 86,297 labeled transitions, 84.95% validation accuracy). BC is resumable — per-game checkpointing survives STS crashes mid-collection.",
           "PPO from scratch — clipped surrogate objective, GAE advantage estimation, target-KL early stopping, entropy annealing, and a BC anchor loss that prevents catastrophic forgetting during fine-tuning. Dense per-step reward shaping: gold, relics, HP delta, floor progression, and spawner-priority incentives (spawner kills at 11× base reward).",
-          "Parallel rollout architecture: 4 concurrent workers feed a central offline trainer via checkpoint-tagged .npz files. Stale-rollout rejection keeps importance ratios fresh. 4,136 games collected across 515 update batches with only 6 stale rollouts. A Tkinter GUI control panel auto-detects hardware, recommends worker counts, and streams live logs.",
+          "Parallel rollout architecture: 4 concurrent workers feed a central offline trainer via checkpoint-tagged .npz files. Stale-rollout rejection keeps importance ratios fresh. 4,136 games collected across 515 update batches with only 6 stale rollouts; latest 150-game eval averages floor 14.70. A Tkinter GUI control panel auto-detects hardware, recommends worker counts, and streams live logs.",
         ],
         hyperparams: [
           { k: "γ (discount)", v: "0.995" },
@@ -207,13 +208,13 @@ export const projects: Project[] = [
     period: "Mar 2024 — Jun 2024",
     status: "shipped",
     commit: "92e0a4b",
-    cover: "/projects/placeholder-1.svg",
+    cover: "/projects/bitlink/cover.svg",
     repoUrl: "https://github.com/SusLiu03/BitLink",
     media: [
       {
         type: "image",
-        src: "/projects/placeholder-1.svg",
-        alt: "BitLink cover",
+        src: "/projects/bitlink/cover.svg",
+        alt: "BitLink — social media feed and messaging interface",
       },
     ],
   },
@@ -227,13 +228,13 @@ export const projects: Project[] = [
     period: "Jan 2024 — Jun 2024",
     status: "shipped",
     commit: "1b7c8d2",
-    cover: "/projects/placeholder-2.svg",
+    cover: "/projects/capstone-archive/cover.svg",
     repoUrl: "https://github.com/cpark50/capstone-archive",
     media: [
       {
         type: "image",
-        src: "/projects/placeholder-2.svg",
-        alt: "Capstone Archive cover",
+        src: "/projects/capstone-archive/cover.svg",
+        alt: "Capstone Archive — browseable grid of student projects",
       },
     ],
   },
@@ -247,13 +248,13 @@ export const projects: Project[] = [
     period: "Feb 2023 — Mar 2023",
     status: "archived",
     commit: "4d0fe19",
-    cover: "/projects/placeholder-1.svg",
+    cover: "/projects/search-engine/cover.svg",
     repoUrl: "https://github.com/Vincent10351/Indexer",
     media: [
       {
         type: "image",
-        src: "/projects/placeholder-1.svg",
-        alt: "Search Engine cover",
+        src: "/projects/search-engine/cover.svg",
+        alt: "Search Engine — terminal search results over 56,000 indexed pages",
       },
     ],
   },

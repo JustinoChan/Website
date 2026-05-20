@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <rect width="1600" height="1000" fill="#141210"/>
+
+  <!-- subtle dot pattern -->
+  <g fill="#2a2622" opacity="0.4">
+    <circle cx="80" cy="80" r="1.5"/><circle cx="160" cy="80" r="1.5"/><circle cx="240" cy="80" r="1.5"/>
+    <circle cx="320" cy="80" r="1.5"/><circle cx="400" cy="80" r="1.5"/><circle cx="480" cy="80" r="1.5"/>
+    <circle cx="560" cy="80" r="1.5"/><circle cx="640" cy="80" r="1.5"/><circle cx="720" cy="80" r="1.5"/>
+    <circle cx="800" cy="80" r="1.5"/><circle cx="880" cy="80" r="1.5"/><circle cx="960" cy="80" r="1.5"/>
+    <circle cx="1040" cy="80" r="1.5"/><circle cx="1120" cy="80" r="1.5"/><circle cx="1200" cy="80" r="1.5"/>
+    <circle cx="1280" cy="80" r="1.5"/><circle cx="1360" cy="80" r="1.5"/><circle cx="1440" cy="80" r="1.5"/>
+    <circle cx="1520" cy="80" r="1.5"/>
+  </g>
+
+  <!-- header bar -->
+  <rect x="100" y="80" width="1400" height="70" rx="6" fill="#1e1c18" stroke="#3a3530" stroke-width="1.5"/>
+  <text x="140" y="123" font-family="monospace" font-size="18" font-weight="700" fill="#f1ead9" opacity="0.9">capstone archive</text>
+  <rect x="420" y="100" width="500" height="32" rx="4" fill="#2a2622" stroke="#3a3530" stroke-width="1"/>
+  <text x="440" y="121" font-family="monospace" font-size="13" fill="#6b655a">search projects...</text>
+  <!-- search icon -->
+  <circle cx="890" cy="116" r="8" fill="none" stroke="#6b655a" stroke-width="1.5"/>
+  <line x1="896" y1="122" x2="903" y2="129" stroke="#6b655a" stroke-width="1.5"/>
+
+  <!-- filter pills -->
+  <rect x="1020" y="102" width="70" height="26" rx="13" fill="#b5491e" opacity="0.2" stroke="#b5491e" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="1055" y="120" text-anchor="middle" font-family="monospace" font-size="11" fill="#b5491e" opacity="0.8">React</text>
+  <rect x="1100" y="102" width="80" height="26" rx="13" fill="none" stroke="#3a3530" stroke-width="1"/>
+  <text x="1140" y="120" text-anchor="middle" font-family="monospace" font-size="11" fill="#6b655a">Django</text>
+  <rect x="1190" y="102" width="70" height="26" rx="13" fill="none" stroke="#3a3530" stroke-width="1"/>
+  <text x="1225" y="120" text-anchor="middle" font-family="monospace" font-size="11" fill="#6b655a">Flask</text>
+
+  <!-- project card row 1 -->
+  <!-- card 1 -->
+  <rect x="100" y="190" width="420" height="340" rx="8" fill="#1e1c18" stroke="#3a3530" stroke-width="1.5"/>
+  <rect x="100" y="190" width="420" height="120" rx="8" fill="#b5491e" opacity="0.15"/>
+  <rect x="100" y="302" width="420" height="8" rx="0" fill="#1e1c18"/>
+  <text x="135" y="260" font-family="monospace" font-size="16" font-weight="700" fill="#f1ead9" opacity="0.85">Smart Home IoT</text>
+  <text x="135" y="280" font-family="monospace" font-size="11" fill="#6b655a">team: chen, park, liu</text>
+  <rect x="135" y="335" width="340" height="8" rx="2" fill="#3a3530"/>
+  <rect x="135" y="355" width="290" height="8" rx="2" fill="#2a2622"/>
+  <rect x="135" y="375" width="310" height="8" rx="2" fill="#2a2622"/>
+  <g>
+    <rect x="135" y="415" width="55" height="22" rx="4" fill="#2a2622"/>
+    <text x="162" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">React</text>
+    <rect x="200" y="415" width="45" height="22" rx="4" fill="#2a2622"/>
+    <text x="222" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">IoT</text>
+    <rect x="255" y="415" width="65" height="22" rx="4" fill="#2a2622"/>
+    <text x="287" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">Python</text>
+  </g>
+  <text x="135" y="490" font-family="monospace" font-size="11" fill="#b5491e" opacity="0.7">2024 · shipped</text>
+
+  <!-- card 2 -->
+  <rect x="590" y="190" width="420" height="340" rx="8" fill="#1e1c18" stroke="#3a3530" stroke-width="1.5"/>
+  <rect x="590" y="190" width="420" height="120" rx="8" fill="#4a4438" opacity="0.2"/>
+  <rect x="590" y="302" width="420" height="8" rx="0" fill="#1e1c18"/>
+  <text x="625" y="260" font-family="monospace" font-size="16" font-weight="700" fill="#f1ead9" opacity="0.85">ML Pipeline</text>
+  <text x="625" y="280" font-family="monospace" font-size="11" fill="#6b655a">team: nguyen, kim</text>
+  <rect x="625" y="335" width="350" height="8" rx="2" fill="#3a3530"/>
+  <rect x="625" y="355" width="280" height="8" rx="2" fill="#2a2622"/>
+  <rect x="625" y="375" width="320" height="8" rx="2" fill="#2a2622"/>
+  <g>
+    <rect x="625" y="415" width="65" height="22" rx="4" fill="#2a2622"/>
+    <text x="657" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">Python</text>
+    <rect x="700" y="415" width="70" height="22" rx="4" fill="#2a2622"/>
+    <text x="735" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">PyTorch</text>
+    <rect x="780" y="415" width="50" height="22" rx="4" fill="#2a2622"/>
+    <text x="805" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">AWS</text>
+  </g>
+  <text x="625" y="490" font-family="monospace" font-size="11" fill="#6b655a">2024 · active</text>
+
+  <!-- card 3 -->
+  <rect x="1080" y="190" width="420" height="340" rx="8" fill="#1e1c18" stroke="#b5491e" stroke-width="1.5" stroke-opacity="0.4"/>
+  <rect x="1080" y="190" width="420" height="120" rx="8" fill="#b5491e" opacity="0.1"/>
+  <rect x="1080" y="302" width="420" height="8" rx="0" fill="#1e1c18"/>
+  <text x="1115" y="260" font-family="monospace" font-size="16" font-weight="700" fill="#f1ead9" opacity="0.85">Recipe Finder</text>
+  <text x="1115" y="280" font-family="monospace" font-size="11" fill="#6b655a">team: wong, chan, patel</text>
+  <rect x="1115" y="335" width="330" height="8" rx="2" fill="#3a3530"/>
+  <rect x="1115" y="355" width="300" height="8" rx="2" fill="#2a2622"/>
+  <rect x="1115" y="375" width="260" height="8" rx="2" fill="#2a2622"/>
+  <g>
+    <rect x="1115" y="415" width="65" height="22" rx="4" fill="#2a2622"/>
+    <text x="1147" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">Django</text>
+    <rect x="1190" y="415" width="60" height="22" rx="4" fill="#2a2622"/>
+    <text x="1220" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">React</text>
+    <rect x="1260" y="415" width="55" height="22" rx="4" fill="#2a2622"/>
+    <text x="1287" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">SQL</text>
+  </g>
+  <text x="1115" y="490" font-family="monospace" font-size="11" fill="#6b655a">2023 · shipped</text>
+
+  <!-- card row 2 -->
+  <!-- card 4 -->
+  <rect x="100" y="570" width="420" height="340" rx="8" fill="#1e1c18" stroke="#3a3530" stroke-width="1.5"/>
+  <rect x="100" y="570" width="420" height="120" rx="8" fill="#4a4438" opacity="0.15"/>
+  <rect x="100" y="682" width="420" height="8" rx="0" fill="#1e1c18"/>
+  <text x="135" y="640" font-family="monospace" font-size="16" font-weight="700" fill="#f1ead9" opacity="0.85">Budgeting App</text>
+  <text x="135" y="660" font-family="monospace" font-size="11" fill="#6b655a">team: lee, rodriguez</text>
+  <rect x="135" y="715" width="310" height="8" rx="2" fill="#3a3530"/>
+  <rect x="135" y="735" width="270" height="8" rx="2" fill="#2a2622"/>
+  <g>
+    <rect x="135" y="775" width="70" height="22" rx="4" fill="#2a2622"/>
+    <text x="170" y="790" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">Angular</text>
+    <rect x="215" y="775" width="75" height="22" rx="4" fill="#2a2622"/>
+    <text x="252" y="790" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">Express</text>
+  </g>
+  <text x="135" y="860" font-family="monospace" font-size="11" fill="#6b655a">2024 · shipped</text>
+
+  <!-- card 5 -->
+  <rect x="590" y="570" width="420" height="340" rx="8" fill="#1e1c18" stroke="#3a3530" stroke-width="1.5"/>
+  <rect x="590" y="570" width="420" height="120" rx="8" fill="#b5491e" opacity="0.08"/>
+  <rect x="590" y="682" width="420" height="8" rx="0" fill="#1e1c18"/>
+  <text x="625" y="640" font-family="monospace" font-size="16" font-weight="700" fill="#f1ead9" opacity="0.85">Exam Scheduler</text>
+  <text x="625" y="660" font-family="monospace" font-size="11" fill="#6b655a">team: martinez, zhou</text>
+  <rect x="625" y="715" width="340" height="8" rx="2" fill="#3a3530"/>
+  <rect x="625" y="735" width="300" height="8" rx="2" fill="#2a2622"/>
+  <g>
+    <rect x="625" y="775" width="50" height="22" rx="4" fill="#2a2622"/>
+    <text x="650" y="790" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">Java</text>
+    <rect x="685" y="775" width="60" height="22" rx="4" fill="#2a2622"/>
+    <text x="715" y="790" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">Spring</text>
+  </g>
+  <text x="625" y="860" font-family="monospace" font-size="11" fill="#6b655a">2023 · archived</text>
+
+  <!-- card 6 (faded/partial) -->
+  <rect x="1080" y="570" width="420" height="340" rx="8" fill="#1e1c18" stroke="#3a3530" stroke-width="1.5" opacity="0.6"/>
+  <rect x="1080" y="570" width="420" height="120" rx="8" fill="#4a4438" opacity="0.1"/>
+  <rect x="1080" y="682" width="420" height="8" rx="0" fill="#1e1c18"/>
+  <text x="1115" y="640" font-family="monospace" font-size="16" font-weight="700" fill="#f1ead9" opacity="0.5">Chat Platform</text>
+  <text x="1115" y="660" font-family="monospace" font-size="11" fill="#6b655a" opacity="0.5">team: johnson, wu</text>
+  <rect x="1115" y="715" width="290" height="8" rx="2" fill="#3a3530" opacity="0.5"/>
+  <rect x="1115" y="735" width="250" height="8" rx="2" fill="#2a2622" opacity="0.5"/>
+
+  <!-- results count -->
+  <text x="100" y="62" font-family="monospace" font-size="13" fill="#6b655a">showing 6 of 229 projects</text>
+</svg>

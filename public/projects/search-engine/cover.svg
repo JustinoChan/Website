@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <rect width="1600" height="1000" fill="#141210"/>
+
+  <!-- scanline texture -->
+  <g stroke="#1e1c18" stroke-width="1" opacity="0.4">
+    <line x1="0" y1="2" x2="1600" y2="2"/><line x1="0" y1="6" x2="1600" y2="6"/>
+    <line x1="0" y1="10" x2="1600" y2="10"/><line x1="0" y1="14" x2="1600" y2="14"/>
+    <line x1="0" y1="18" x2="1600" y2="18"/><line x1="0" y1="22" x2="1600" y2="22"/>
+    <line x1="0" y1="26" x2="1600" y2="26"/><line x1="0" y1="30" x2="1600" y2="30"/>
+  </g>
+
+  <!-- terminal header bar -->
+  <rect x="200" y="100" width="1200" height="44" rx="8" ry="8" fill="#1e1c18" stroke="#3a3530" stroke-width="1.5"/>
+  <rect x="200" y="122" width="1200" height="22" fill="#1e1c18"/>
+  <circle cx="228" cy="122" r="7" fill="#b5491e" opacity="0.7"/>
+  <circle cx="252" cy="122" r="7" fill="#6b655a" opacity="0.4"/>
+  <circle cx="276" cy="122" r="7" fill="#6b655a" opacity="0.4"/>
+  <text x="800" y="127" text-anchor="middle" font-family="monospace" font-size="13" fill="#6b655a">search-engine v1.0 -- 56,000+ pages indexed</text>
+
+  <!-- terminal body -->
+  <rect x="200" y="136" width="1200" height="740" rx="0" fill="#1a1816" stroke="#3a3530" stroke-width="1.5"/>
+  <rect x="200" y="860" width="1200" height="16" rx="0" ry="8" fill="#1a1816" stroke="#3a3530" stroke-width="1.5"/>
+  <rect x="200" y="860" width="1200" height="8" fill="#1a1816"/>
+
+  <!-- search prompt -->
+  <text x="240" y="185" font-family="monospace" font-size="15" fill="#6b655a">$</text>
+  <text x="260" y="185" font-family="monospace" font-size="15" fill="#b5491e"> search</text>
+  <text x="340" y="185" font-family="monospace" font-size="15" fill="#f1ead9" opacity="0.9"> "information retrieval algorithms"</text>
+  <rect x="636" y="173" width="10" height="17" fill="#b5491e" opacity="0.7"/>
+
+  <!-- stats line -->
+  <text x="240" y="220" font-family="monospace" font-size="13" fill="#6b655a">found 847 results across 88 domains in 142ms</text>
+
+  <!-- divider -->
+  <line x1="240" y1="240" x2="1360" y2="240" stroke="#3a3530" stroke-width="1"/>
+
+  <!-- result 1 -->
+  <text x="240" y="275" font-family="monospace" font-size="14" fill="#b5491e" opacity="0.5">[1]</text>
+  <text x="280" y="275" font-family="monospace" font-size="14" font-weight="700" fill="#f1ead9" opacity="0.9">Introduction to Information Retrieval — Stanford NLP</text>
+  <text x="280" y="297" font-family="monospace" font-size="12" fill="#b5491e" opacity="0.6">https://nlp.stanford.edu/IR-book/information-retrieval.html</text>
+  <text x="280" y="317" font-family="monospace" font-size="12" fill="#6b655a">An introduction to the field of information retrieval, covering</text>
+  <text x="280" y="335" font-family="monospace" font-size="12" fill="#6b655a">indexing, boolean and vector space models, and ranked retrieval...</text>
+  <rect x="280" y="350" width="60" height="16" rx="3" fill="#2a2622"/>
+  <text x="310" y="362" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">tf-idf</text>
+  <rect x="350" y="350" width="80" height="16" rx="3" fill="#2a2622"/>
+  <text x="390" y="362" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">relevance</text>
+
+  <!-- result 2 -->
+  <text x="240" y="400" font-family="monospace" font-size="14" fill="#b5491e" opacity="0.5">[2]</text>
+  <text x="280" y="400" font-family="monospace" font-size="14" font-weight="700" fill="#f1ead9" opacity="0.9">Inverted Index Construction and Optimization</text>
+  <text x="280" y="422" font-family="monospace" font-size="12" fill="#b5491e" opacity="0.6">https://ics.uci.edu/~cs221/lectures/inverted-index.html</text>
+  <text x="280" y="442" font-family="monospace" font-size="12" fill="#6b655a">Techniques for building efficient inverted indices over large</text>
+  <text x="280" y="460" font-family="monospace" font-size="12" fill="#6b655a">document collections, with memory partitioning strategies...</text>
+  <rect x="280" y="475" width="70" height="16" rx="3" fill="#2a2622"/>
+  <text x="315" y="487" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">indexing</text>
+  <rect x="360" y="475" width="100" height="16" rx="3" fill="#2a2622"/>
+  <text x="410" y="487" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">partitioning</text>
+
+  <!-- result 3 -->
+  <text x="240" y="525" font-family="monospace" font-size="14" fill="#b5491e" opacity="0.5">[3]</text>
+  <text x="280" y="525" font-family="monospace" font-size="14" font-weight="700" fill="#f1ead9" opacity="0.9">PageRank and Link Analysis for Web Search</text>
+  <text x="280" y="547" font-family="monospace" font-size="12" fill="#b5491e" opacity="0.6">https://research.google/pubs/the-pagerank-citation-ranking/</text>
+  <text x="280" y="567" font-family="monospace" font-size="12" fill="#6b655a">The original PageRank paper describing how link structure can</text>
+  <text x="280" y="585" font-family="monospace" font-size="12" fill="#6b655a">be used to rank web pages by importance and authority...</text>
+  <rect x="280" y="600" width="80" height="16" rx="3" fill="#2a2622"/>
+  <text x="320" y="612" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">pagerank</text>
+  <rect x="370" y="600" width="90" height="16" rx="3" fill="#2a2622"/>
+  <text x="415" y="612" text-anchor="middle" font-family="monospace" font-size="10" fill="#6b655a">link graph</text>
+
+  <!-- result 4 -->
+  <text x="240" y="650" font-family="monospace" font-size="14" fill="#b5491e" opacity="0.5">[4]</text>
+  <text x="280" y="650" font-family="monospace" font-size="14" font-weight="700" fill="#f1ead9" opacity="0.8">Query Processing with Partial Indices</text>
+  <text x="280" y="672" font-family="monospace" font-size="12" fill="#b5491e" opacity="0.5">https://dl.acm.org/doi/10.1145/query-partial-indices</text>
+  <text x="280" y="692" font-family="monospace" font-size="12" fill="#6b655a" opacity="0.7">Splitting inverted indices into alphabetic partitions for reduced</text>
+  <text x="280" y="710" font-family="monospace" font-size="12" fill="#6b655a" opacity="0.7">memory footprint at query time, enabling sub-300ms response...</text>
+
+  <!-- result 5 (fading) -->
+  <text x="240" y="760" font-family="monospace" font-size="14" fill="#b5491e" opacity="0.3">[5]</text>
+  <text x="280" y="760" font-family="monospace" font-size="14" font-weight="700" fill="#f1ead9" opacity="0.5">Tokenization Strategies for Web Document Retrieval</text>
+  <text x="280" y="782" font-family="monospace" font-size="12" fill="#b5491e" opacity="0.3">https://arxiv.org/abs/2103.tokenization-web-retrieval</text>
+  <text x="280" y="802" font-family="monospace" font-size="12" fill="#6b655a" opacity="0.4">Custom tokenization pipelines for heterogeneous web content...</text>
+
+  <!-- bottom fade gradient -->
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1816" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#1a1816" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <rect x="201" y="750" width="1198" height="120" fill="url(#fade)"/>
+
+  <!-- bottom status bar -->
+  <text x="240" y="855" font-family="monospace" font-size="12" fill="#6b655a">page 1/85</text>
+  <text x="1340" y="855" font-family="monospace" font-size="12" fill="#6b655a" text-anchor="end">56,241 pages · 88 domains</text>
+</svg>
