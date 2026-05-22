@@ -63,24 +63,25 @@ export const projects: Project[] = [
     slug: "ascension-ai",
     title: "AscensionAI",
     tagline:
-      "Reinforcement learning agent that learns to play Slay the Spire via behavior cloning and PPO.",
+      "Distributed reinforcement learning system for Slay the Spire with behavior cloning, PPO fine-tuning, and adaptive auto-tuning.",
     description:
-      "AscensionAI is a distributed reinforcement learning system that trains an AI agent to play Slay the Spire by wrapping a live desktop game instance within a training framework — built with PyTorch, Gymnasium, and live game integration via CommunicationMod.\n\nBuilt a 530-dimensional structured observation encoder covering player stats, hand cards, monster identity/behavior/intents/powers, screen context, relic/potion inventories, deck profile, and a BFS map path lookahead. Embedded a database of all 66 STS enemies (7 behavioral flags + 8-d identity embeddings) directly into the observation space so the agent knows enemy patterns from the first encounter — without needing thousands of games to rediscover that Gremlin Nob punishes skills or Cultist scales strength every turn.\n\nImplemented PPO from scratch with clipped surrogate objective, GAE advantage estimation, target-KL early stopping, entropy annealing, and a BC anchor loss to prevent catastrophic forgetting during fine-tuning. The 134-action masked policy enforces legal-action constraints at every step, and dense per-step reward shaping covers gold, relics, HP, floor progression, and priority target incentives (spawner kills rewarded at 11× base).\n\nDesigned a parallel rollout architecture: multiple concurrent worker processes feed a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection. Completed 4,136 PPO rollout games across 515 update batches with only 6 stale rollouts. BC warm-start achieves 84.95% validation accuracy across 86,297 labeled transitions, and the heuristic baseline reaches floor 15.78 avg with a shaped reward of 8.44 and 26% Act 2 rate. The latest 150-game PPO eval averages floor 14.70. Engineered for 24+ hour autonomous runs — atomic checkpoint saves, resumable BC progress, crash detection, orphan-process cleanup, and infinite-loop recovery. Includes an interactive results dashboard and reproducible experiment reports hosted on GitHub Pages.",
+      "AscensionAI is a distributed reinforcement learning system that trains an AI agent to play Slay the Spire by wrapping a live desktop game instance within a training framework — built with PyTorch, Gymnasium, and live game integration via CommunicationMod.\n\nBuilt a 530-dimensional structured observation encoder covering player stats, hand cards, monster identity/behavior/intents/powers, screen context, relic/potion inventories, deck profile, and a BFS map path lookahead. Embedded a database of all 66 STS enemies (7 behavioral flags + 8-d identity embeddings) directly into the observation space so the agent knows enemy patterns from the first encounter — without needing thousands of games to rediscover that Gremlin Nob punishes skills or Cultist scales strength every turn.\n\nImplemented PPO from scratch with clipped surrogate objective, GAE advantage estimation, target-KL early stopping, adaptive entropy annealing, adaptive BC anchor decay, adaptive learning rate reduction, and boss-specific reward shaping for all Act 1–3 bosses (Guardian, Hexaghost, Slime Boss, Bronze Automaton, The Champ, Donu & Deca). The 134-action masked policy enforces legal-action constraints at every step via -∞ logit masking.\n\nUpgraded the network from a 256×256 Tanh MLP (~236K params) to a (512, 256, 256) GELU MLP (~504K params) using a warm-transfer method that copies compatible weight blocks, zero-pads widened layers, and identity-initializes new layers to preserve learned behavior while adding representational capacity.\n\nDesigned a parallel rollout architecture: multiple concurrent worker processes feed a central offline trainer via checkpoint-tagged .pt files, with stale-rollout rejection. Completed 12,088 PPO rollout games across 1,488 update batches. BC warm-start achieves 84.95% validation accuracy across 86,297 labeled transitions. The heuristic baseline reaches floor 15.78 avg with 39% boss conversion and 26% Act 2 rate. Peak PPO eval (5k checkpoint) averages floor 15.44 with 31.1% boss conversion. Engineered for 24+ hour autonomous runs — atomic checkpoint saves, per-instance JVM heap limits, crash detection, orphan-process cleanup, restart-every cycling, and infinite-loop recovery. Includes an interactive results dashboard and reproducible experiment reports hosted on GitHub Pages.",
     tags: [
       "Python",
       "PyTorch",
       "Reinforcement Learning",
       "PPO",
       "Gymnasium",
+      "Action Masking",
       "Slay the Spire",
     ],
     period: "Nov 2025 — Present",
     status: "active",
-    commit: "f3a91c8",
+    commit: "0f686dc",
     cover: "/projects/ascension-ai/cover.jpg",
     liveUrl: "https://justinochan.github.io/AscensionAI/",
     repoUrl: "https://github.com/JustinoChan/AscensionAI",
-    writeupUrl: "/projects/ascension-ai/writeup.pdf",
+    writeupUrl: "https://justinochan.github.io/AscensionAI/AscensionAI_Technical_Writeup.pdf",
     media: [
       {
         type: "image",
@@ -91,15 +92,19 @@ export const projects: Project[] = [
     spec: {
       facts: [
         { label: "domain", value: "single-player deck-building roguelike (Slay the Spire)" },
-        { label: "agent", value: "PPO + Behavior Cloning warm-start" },
+        { label: "agent", value: "PPO + Behavior Cloning warm-start + adaptive auto-tuning" },
         { label: "framework", value: "PyTorch · Gymnasium · NumPy" },
         { label: "integration", value: "CommunicationMod (live game stdin/stdout JSON)" },
         { label: "observation", value: "530-d structured vector · 66-monster knowledge base" },
-        { label: "action space", value: "134 discrete actions (legal-action masked)" },
-        { label: "network", value: "530→256→256→{134 logits + 1 value} · ~235K params · CPU-only" },
-        { label: "training scale", value: "4,136 rollout games · 515 PPO updates · 86,297 BC transitions" },
-        { label: "baseline", value: "heuristic avg floor 15.78 · shaped reward 8.44 · 26% Act 2 rate · BC val acc 84.95%" },
-        { label: "PPO eval", value: "avg floor 14.70 (latest 150-game eval)" },
+        { label: "action space", value: "134 discrete actions (legal-action masked via -∞ logits)" },
+        { label: "network", value: "530→512→256→256→{134 logits + 1 value} · GELU · ~504K params · CPU-only" },
+        { label: "warm transfer", value: "migrated from 256×256 Tanh (~236K) → 512×256×256 GELU (~504K) preserving learned weights" },
+        { label: "training scale", value: "12,088 rollout games · 1,488 PPO updates · 86,297 BC transitions" },
+        { label: "auto-tuning", value: "BC coef (0.001–0.009) · entropy coef · learning rate — all adaptive based on policy behavior" },
+        { label: "reward shaping", value: "boss-specific shaping for all Act 1–3 bosses (Guardian, Hexaghost, Slime Boss, Bronze Automaton, Champ, Donu & Deca)" },
+        { label: "baseline", value: "heuristic avg floor 15.78 · 39% boss conversion · 26% Act 2 rate · BC val acc 84.95%" },
+        { label: "PPO eval (peak)", value: "avg floor 15.44 · 31.1% boss conversion (5k checkpoint, 200 fixed seeds)" },
+        { label: "PPO eval (12k)", value: "avg floor 14.83 · 21.7% boss conversion (post-BC decay acceleration, in exploration valley)" },
       ],
       problem: [
         "Slay the Spire is hard for RL agents for three reasons: the observation space is unstructured (cards, relics, intents — all categorical), the action space is large and conditionally legal, and reward is sparse (you only really learn if you survive an act).",
@@ -107,12 +112,13 @@ export const projects: Project[] = [
         "Live-game training is bottlenecked by simulation speed — even at max Fast Mode, one game costs 30–90 seconds. There is no headless simulator, so throughput scales only by running multiple concurrent game instances on a single machine (~4–8 workers on a 16-core system).",
       ],
       architectureCaption:
-        "Parallel rollout workers feed a central offline trainer via checkpoint-tagged .npz files. Stale rollouts (workers running an older policy than the current checkpoint) are rejected at ingest.",
+        "Parallel rollout workers feed a central offline trainer via checkpoint-tagged .pt files. Stale rollouts (workers running an older policy than the current checkpoint) are rejected at ingest. The GUI acts as a process supervisor with crash recovery and restart-every cycling.",
       architectureAscii: String.raw`              ┌────────────────────────────────────────────────┐
               │              tkinter control panel              │
               │   auto-detect HW · worker count · live logs    │
+              │   per-instance JVM heap · restart-every cycle  │
               └────────────────────────┬───────────────────────┘
-                                       │ spawn
+                                       │ spawn + supervise
        ┌───────────────────────────────┼───────────────────────────────┐
        ▼                               ▼                               ▼
 ┌────────────┐                  ┌────────────┐                  ┌────────────┐
@@ -121,7 +127,7 @@ export const projects: Project[] = [
 │   policy → │                  │   policy → │                  │   policy → │
 │   rollout  │                  │   rollout  │                  │   rollout  │
 └─────┬──────┘                  └─────┬──────┘                  └─────┬──────┘
-      │  rollout-{ckpt}.npz           │                              │
+      │  rollout-{ckpt}.pt            │                              │
       └──────────────┬────────────────┴──────────────────────────────────┘
                      ▼
             ┌────────────────────┐         ┌────────────────────────┐
@@ -130,11 +136,13 @@ export const projects: Project[] = [
             └────────────────────┘         │  GAE advantages        │
                                            │  target-KL early stop  │
                                            │  BC anchor loss        │
+                                           │  adaptive auto-tuning  │
+                                           │  boss reward shaping   │
                                            └──────────┬─────────────┘
                                                       ▼
                                             ┌────────────────────┐
                                             │ atomic checkpoint  │
-                                            │  → policy_v[N].pt  │
+                                            │  → ppo_sts.pt      │
                                             └─────────┬──────────┘
                                                       ▼
                                                 (workers reload)`,
@@ -170,30 +178,34 @@ export const projects: Project[] = [
       training: {
         title: "training",
         paras: [
-          "Behavior cloning warm-start from a hand-coded heuristic (150–200 demo games → 86,297 labeled transitions, 84.95% validation accuracy). BC is resumable — per-game checkpointing survives STS crashes mid-collection.",
-          "PPO from scratch — clipped surrogate objective, GAE advantage estimation, target-KL early stopping, entropy annealing, and a BC anchor loss that prevents catastrophic forgetting during fine-tuning. Dense per-step reward shaping: gold, relics, HP delta, floor progression, and spawner-priority incentives (spawner kills at 11× base reward).",
-          "Parallel rollout architecture: 4 concurrent workers feed a central offline trainer via checkpoint-tagged .npz files. Stale-rollout rejection keeps importance ratios fresh. 4,136 games collected across 515 update batches with only 6 stale rollouts; latest 150-game eval averages floor 14.70. A Tkinter GUI control panel auto-detects hardware, recommends worker counts, and streams live logs.",
+          "Behavior cloning warm-start from a hand-coded heuristic (150–200 demo games → 86,297 labeled transitions, 84.95% validation accuracy with label smoothing 0.02). BC is resumable — per-game checkpointing survives STS crashes mid-collection.",
+          "PPO from scratch — clipped surrogate objective, GAE advantage estimation (λ=0.95), target-KL early stopping (0.03), and a BC anchor loss that prevents catastrophic forgetting during fine-tuning. Three hyperparameters auto-tune during training: BC coefficient oscillates between 0.001–0.009 based on policy improvement, entropy coefficient adjusts based on normalized entropy to prevent premature collapse, and learning rate reduces when KL divergence exceeds target bounds.",
+          "Boss-specific reward shaping for all Act 1–3 bosses: Guardian (node damage patterns), Hexaghost (inferno cycling), Slime Boss (split threshold), Bronze Automaton (hyper beam charging), The Champ (phase transitions), and Donu & Deca (priority targeting). Dense per-step shaping also covers gold, relics, HP delta, floor progression, and spawner-priority incentives.",
+          "Network upgraded from 256×256 Tanh MLP (~236K params) to (512, 256, 256) GELU MLP (~504K params) via warm transfer — compatible weights copied exactly, widened layers zero-padded, new layers identity-initialized to preserve learned behavior while adding capacity.",
+          "Parallel rollout architecture: 4–8 concurrent workers feed a central offline trainer via checkpoint-tagged .pt files. Stale-rollout rejection keeps importance ratios fresh. 12,088 games collected across 1,488 update batches. A Tkinter GUI control panel acts as process supervisor — auto-detects hardware, recommends worker counts, streams live logs, manages per-instance JVM heap limits, and supports restart-every cycling to prevent memory growth.",
         ],
         hyperparams: [
           { k: "γ (discount)", v: "0.995" },
           { k: "λ (GAE)", v: "0.95" },
           { k: "clip ε", v: "0.2" },
-          { k: "lr (policy)", v: "3e-4" },
+          { k: "lr (policy)", v: "3e-4 (adaptive)" },
           { k: "lr (value)", v: "1e-3" },
-          { k: "target KL", v: "0.02" },
-          { k: "entropy coef", v: "0.01 → 0.001" },
-          { k: "bc anchor", v: "0.5" },
+          { k: "target KL", v: "0.03" },
+          { k: "entropy coef", v: "adaptive" },
+          { k: "bc anchor", v: "0.001–0.009 (auto-tuned)" },
           { k: "batch size", v: "4096" },
           { k: "epochs/update", v: "4" },
+          { k: "label smoothing (BC)", v: "0.02" },
+          { k: "network", v: "(512, 256, 256) GELU" },
         ],
       },
       next: [
-        "run full 3,000-game converged training to validate avg-100 floor trends and exceed heuristic baseline win rate",
+        "continue training on upgraded (512, 256, 256) GELU network to break capacity plateau and exceed heuristic baseline",
+        "migrate non-combat screens (shop, card rewards, events) from heuristic to RL-learned policy one at a time",
         "checkpoint versioning with named snapshots and rollback support for PPO regression detection",
-        "move shop and grid-screen decisions from heuristic into RL-learned policy",
         "integrate headless simulator for 10–100× throughput over live-game bottleneck",
         "extend to additional characters (Silent → Defect → Watcher) and higher ascension levels",
-        "replace 2-layer MLP with transformer / attention-pooled architecture over variable-length sub-vectors",
+        "explore transformer / attention-pooled architecture over variable-length sub-vectors",
       ],
     },
   },
