@@ -1,7 +1,7 @@
 # AscensionAI Technical Writeup
 
-**Version:** 0.4.0
-**Document Date:** 2026-05-07
+**Version:** 0.6.0
+**Document Date:** 2026-05-23
 **Author:** Justin Chan
 **Repository:** https://github.com/JustinoChan/AscensionAI
 
@@ -9,7 +9,7 @@
 
 ## Abstract
 
-AscensionAI is a reinforcement learning system that trains an autonomous agent to play *Slay the Spire* (Ironclad) end-to-end against the live, modded game process. The system uses a structured 530-dimensional observation encoder, a 134-action discrete action space with legal-action masking, dense reward shaping, behavior cloning warm-start, and Proximal Policy Optimization (PPO) fine-tuning. Training is parallelized across multiple live game instances feeding a central offline trainer over a checkpoint-tagged rollout protocol. The system currently runs on Windows and integrates with ModTheSpire, BaseMod, CommunicationMod, and a bundled SpireComm Python interface. This document describes the architecture, algorithmic choices, implementation, observed throughput, current limitations, and a phased roadmap.
+AscensionAI is a reinforcement learning system that trains an autonomous agent to play *Slay the Spire* (Ironclad) end-to-end against the live, modded game process. The system uses a structured 585-dimensional observation encoder (expanded from 530 with 19 monster power slots), a 134-action discrete action space with legal-action masking, dense reward shaping, behavior cloning warm-start, and Proximal Policy Optimization (PPO) fine-tuning. Training is parallelized across multiple live game instances feeding a central offline trainer over a checkpoint-tagged rollout protocol, with fixed-seed evaluation and dashboard artifacts used to separate real policy progress from run-to-run variance. As of 2026-05-23, the observation encoder covers all combat-relevant STS1 monster powers and the reward structure includes upgrade incentives, Guardian phase-aware shaping, and tuned elite bonuses. The system currently runs on Windows and integrates with ModTheSpire, BaseMod, CommunicationMod, and a bundled SpireComm Python interface. This document describes the architecture, algorithmic choices, implementation, observed throughput, current limitations, and a phased roadmap.
 
 ---
 
@@ -17,27 +17,30 @@ AscensionAI is a reinforcement learning system that trains an autonomous agent t
 
 | Aspect | Status |
 |---|---|
-| Environment integration | Complete — live STS via CommunicationMod / SpireComm |
-| Observation encoder | Complete — 530-d vector across 11 feature blocks |
-| Action space | Complete — 134 discrete actions, legal-action masking |
-| Reward shaping | Complete — dense per-step + sparse terminal rewards |
-| Behavior cloning | Complete — heuristic demos, supervised cross-entropy, resumable checkpointing |
-| PPO fine-tuning | Complete — clipped policy, GAE, entropy annealing, BC anchor loss, target-KL early stop |
-| Parallel rollout collection | Complete — multi-instance workers with stale-rollout rejection |
-| Offline trainer | Complete — batch-merge, atomic checkpoint save |
-| GUI control panel | Complete — Windows-native launcher and monitor |
-| Win-rate convergence | **Not yet demonstrated** at scale |
+| Environment integration | Complete - live STS via CommunicationMod / SpireComm |
+| Observation encoder | Complete - 585-d vector across 11 feature blocks (19 monster power slots) |
+| Action space | Complete - 134 discrete actions, legal-action masking |
+| Reward shaping | Complete - dense per-step, terminal, elite win bonus, HP-scaled floor advance, spawner priority, and boss-specific signals |
+| Behavior cloning | Complete - heuristic demos, supervised cross-entropy, resumable checkpointing |
+| PPO fine-tuning | Complete - clipped policy, GAE, entropy/BC auto-tuning, BC anchor loss, target-KL early stop |
+| Parallel rollout collection | Complete - multi-instance workers with checkpoint metadata and stale-rollout rejection |
+| Offline trainer | Complete - batch merge, auto-tune, warm transfer, atomic checkpoint save |
+| GUI control panel | Complete - Windows-native launcher, monitor, archive controls, eval set mode, RAM cap controls |
+| Evaluation/reporting | Complete - deterministic seed sets, resumable eval logs, experiment reports, static dashboard |
+| Win-rate convergence | **Not yet demonstrated**; no recorded full victory in the published fixed-seed evals |
 | Cross-platform support | **Windows-only** for now |
 
 **Headline metrics (current state):**
 
-- Observation dimensionality: 530
+- Observation dimensionality: 585 (expanded from 530; 19 monster power slots per monster)
 - Action space size: 134
-- Policy/value network: 530 → 256 → 256 → {134 logits + 1 value}, ~235K parameters
-- Monster knowledge base: 66 monsters × 7 behavioral flags × 8-d identity embedding
-- Typical BC game length: 60–200 transitions
-- Typical BC throughput: 1 game / 30–90 seconds (Fast Mode + Super Fast Mode)
-- Per-step inference: <5 ms on CPU (no GPU required)
+- Current offline PPO architecture: 585 -> 512 -> 256 -> 256 -> {134 logits + 1 value}, GELU, ~504K parameters
+- Monster knowledge base: 66 monsters x 7 behavioral flags x 8-d identity embedding
+- Monster power encoding: 19 powers per monster (strength, vulnerable, weakened, artifact, ritual, curlup, thorns, angry, sharphide, modeshift, enrage, curiosity, intangible, invincible, timewarp, beatofdeath, malleable, lifelink, regenerate)
+- Training scale: 16,900+ PPO rollout games, 1,856+ update batches
+- Training avg floor (last 500): 15.1, elite WR 78%, boss WR 21%
+- Best single training run: floor 50 (Act 3)
+- Per-step inference: <5 ms on CPU (no GPU required for play/eval)
 
 ---
 
@@ -60,6 +63,7 @@ AscensionAI is a reinforcement learning system that trains an autonomous agent t
 15. [Metrics Reference](#15-metrics-reference)
 16. [Hyperparameter Reference](#16-hyperparameter-reference)
 17. [Glossary](#17-glossary)
+18. [May 21, 2026 Current-System Addendum](#18-may-21-2026-current-system-addendum)
 
 ---
 
@@ -76,10 +80,10 @@ The project is designed around long-running autonomous training rather than one-
 | Ascension level | 0 |
 | Environment interface | CommunicationMod via SpireComm |
 | RL framework | Custom PPO implementation in PyTorch |
-| Policy | Actor-critic MLP, 2 hidden layers of 256 units, Tanh activation |
+| Policy | Actor-critic MLP; current offline PPO default is `(512, 256, 256)` with GELU, while legacy checkpoints use `(256, 256)` with Tanh |
 | Warm-start | Behavior cloning from a hand-coded heuristic |
 | Scaling strategy | Multiple rollout workers + central offline trainer |
-| Hardware target | CPU-only (no GPU required) |
+| Hardware target | CPU inference/play; offline trainer can run on CPU, GPU, or auto-selected device when available |
 
 ---
 
@@ -103,7 +107,7 @@ The project is organized around a four-tier pipeline: live game, communication l
                                  v
 +-----------------------------------------------------------------+
 |                       AGENT LAYER                               |
-|   obs_encoder.py        -> 530-d observation vector             |
+|   obs_encoder.py        -> 585-d observation vector             |
 |   sts_gym_env.py        -> 134-action mask + reward tracker     |
 |   screen_handler.py     -> auto-handle mechanical screens       |
 |   ppo_model.py          -> sample / predict action              |
@@ -145,14 +149,14 @@ For parallel training the topology fans out:
 | CPU-only inference | Network is small (~235K params); GPU saturated by other costs (game speed, IPC). |
 | Per-game `.npz` rollouts | Each rollout is self-contained, atomic, deletable, and carries checkpoint metadata. |
 | Stale-rollout rejection | Workers can lag the trainer; old rollouts harm PPO objective if importance ratios drift too far. |
-| Heuristic + RL hybrid | RL owns "decisions that matter"; heuristics keep the live process from stalling on edge cases. |
+| Heuristic + RL hybrid | RL owns all strategic decisions (combat, card rewards, rest sites, map pathing, boss relics, events); heuristics handle shops and mechanical screens. |
 | Action masking (not penalty) | Illegal actions get probability zero in sampling — no wasted gradient steps on impossible plays. |
 
 ---
 
 ## 3. Observation Space
 
-Total observation length: **530 floats** (= ~2.1 KB per state).
+Total observation length: **585 floats** (= ~2.3 KB per state). Expanded from 530 on 2026-05-23 by adding 11 STS1-verified monster powers.
 
 ### 3.1 Observation block breakdown
 
@@ -160,16 +164,44 @@ Total observation length: **530 floats** (= ~2.1 KB per state).
 |---|---:|---|
 | Player state | 15 | HP / max HP, energy, block, gold, floor, act, in-combat flags |
 | Screen-type one-hot | 14 | NONE / MAP / EVENT / CHEST / SHOP / REST / ... / HAND_SELECT / GRID / GAME_OVER |
-| Hand cards (10 slots × 16) | 160 | Per-card: identity, type, cost, upgrade, exhausts, damage/block, playable |
-| Monsters (5 slots × 30) | 150 | Per-monster: HP/block/intent + 8-d identity embedding + 3 move-history IDs + 7 behavioral flags |
+| Hand cards (10 slots x 16) | 160 | Per-card: identity, type, cost, upgrade, exhausts, damage/block, playable |
+| Monsters (5 slots x 30) | 150 | Per-monster: HP/block/intent + 8-d identity embedding + 3 move-history IDs + 7 behavioral flags |
 | Player powers | 20 | Strength, Dexterity, Vulnerable, Weak, Frail, Ritual, etc. |
-| Monster powers (5 × 8) | 40 | Per-monster top powers (Strength, Vulnerable, ...) |
+| Monster powers (5 x 19) | 95 | Per-monster: 19 power slots covering all combat-relevant STS1 buffs/debuffs |
 | Choice list features | 7 | Number/type-distribution of currently offered choices |
 | Relics | 25 | Relic feature bag (presence + key-effect flags) |
-| Potions (5 × 8) | 40 | Per-slot: id, target type, cost, presence, value flags |
+| Potions (5 x 8) | 40 | Per-slot: id, target type, cost, presence, value flags |
 | Deck profile | 20 | Card-type distribution, average cost, curse/status counts, upgrade ratio |
-| Map lookahead | 39 | 4 next choices × (one-hot type + 3-floor BFS density) + 3 globals |
-| **Total** | **530** | |
+| Map lookahead | 39 | 4 next choices x (one-hot type + 3-floor BFS density) + 3 globals |
+| **Total** | **585** | |
+
+### 3.1.1 Monster power slots (19 per monster)
+
+The 19 encoded monster powers cover all combat-relevant STS1 buffs and debuffs:
+
+| Index | Power | Key monsters |
+|---:|---|---|
+| 0 | Strength | Many (Cultist, Nob, etc.) |
+| 1 | Vulnerable | Applied by player |
+| 2 | Weakened | Applied by player |
+| 3 | Artifact | Bosses, elites |
+| 4 | Ritual | Cultist |
+| 5 | Curl Up | Louse variants |
+| 6 | Thorns | Spiker, player-applied |
+| 7 | Angry | Book of Stabbing |
+| 8 | Sharp Hide | Guardian (defensive mode) |
+| 9 | Mode Shift | Guardian (phase counter) |
+| 10 | Enrage | Gremlin Nob |
+| 11 | Curiosity | Awakened One |
+| 12 | Intangible | Nemesis |
+| 13 | Invincible | Corrupt Heart |
+| 14 | Time Warp | Time Eater |
+| 15 | Beat of Death | Corrupt Heart |
+| 16 | Malleable | Writhing Mass |
+| 17 | Life Link | Darklings |
+| 18 | Regenerate | Awakened One, burning elites |
+
+An unrecognised-powers logger writes unknown power IDs to `logs/unrecognised_powers.log` for coverage auditing.
 
 ### 3.2 Monster knowledge base
 
@@ -189,7 +221,7 @@ The encoder includes a built-in database of all **66 STS1 monsters**. Each monst
 | `escapes` | Can flee combat | Mugger, Looter, all gremlins |
 | `spawns_minions` | Summons more enemies | **Gremlin Leader, Reptomancer, Bronze Automaton** |
 
-The `spawns_minions` flag is the agent's primary signal for the "focus the spawner" strategy. It is paired with a strong reward bonus (see §5).
+The `spawns_minions` flag is the agent's primary signal for the "focus the spawner" strategy. It is paired with a strong reward bonus (see section 5).
 
 ### 3.3 Map lookahead
 
@@ -203,12 +235,12 @@ Total: **134 discrete actions**, with a legal-action mask computed each step.
 
 | Action range | Indices | Count | Description |
 |---|---|---:|---|
-| Targeted card play | 0–49 | 50 | hand slot (0–9) × monster slot (0–4) |
-| Untargeted card play | 50–59 | 10 | hand slot 0–9 |
+| Targeted card play | 0-49 | 50 | hand slot (0-9) x monster slot (0-4) |
+| Untargeted card play | 50-59 | 10 | hand slot 0-9 |
 | End turn | 60 | 1 | |
-| Targeted potion | 61–85 | 25 | potion slot (0–4) × monster slot (0–4) |
-| Untargeted potion | 86–90 | 5 | potion slot 0–4 |
-| Choice selection | 91–130 | 40 | choice index 0–39 (events, rewards, map, shops) |
+| Targeted potion | 61-85 | 25 | potion slot (0-4) x monster slot (0-4) |
+| Untargeted potion | 86-90 | 5 | potion slot 0-4 |
+| Choice selection | 91-130 | 40 | choice index 0-39 (events, rewards, map, shops) |
 | Proceed | 131 | 1 | |
 | Leave / cancel | 132 | 1 | |
 | No-op (request state) | 133 | 1 | |
@@ -230,39 +262,46 @@ Reward shaping is dense to accelerate early learning. All reward sources fire ea
 |---|---:|---|
 | Gold gain | +0.01 / gold | |
 | New relic | +1.0 | |
-| Card removed from deck | +0.2 / card | (card removal events) |
-| Floor advanced | +0.5 | |
-| HP loss | −0.05 / HP | Constant penalty to discourage damage taken |
-| Generic enemy damage dealt | +0.02 / HP | Applied to total enemy HP delta |
-| Generic monster killed | +0.5 / kill | |
-| **Spawner damage bonus** | **+0.08 / HP** | On top of generic — total **5× generic** for spawners |
-| **Spawner kill bonus** | **+5.0** | On top of generic — total **11× generic kill** for spawners |
-| Act advanced (act 2+) | +10.0 | Encourages full-act progression |
-| Victory | +50.0 | Terminal |
-| Defeat | −15.0 + 0.3 × floor | Floor-prorated to avoid instant runs being equally bad |
+| Max HP gain | +0.10 / HP | Rewards Feed events, relics that raise max HP |
+| Card removed from deck | +0.2 / card | Card removal events |
+| Floor advanced | +0.50 + 0.25 x (HP / max HP) | Hybrid: base progress + HP-scaled bonus |
+| HP loss | -0.08 / HP | Constant penalty to discourage damage taken |
+| Generic enemy damage dealt | +0.015 / HP | Applied to total enemy HP delta |
+| Generic monster killed | +0.75 / kill | |
+| **Priority monster damage** | **+0.03-5.0 / HP** | Spawners, boss minions (Donu, TorchHead, BronzeOrb) |
+| **Priority monster kill** | **+1.0-5.0** | Weighted by threat level |
+| Rest-site upgrade | +0.30 / upgrade | Counters over-resting at high HP by rewarding smithing |
+| **Elite win bonus** | **+4.0** | Awarded on floor advance after elite victory |
+| Boss kill reward | +8.0 + up to +8.0 x HP ratio | Scaled by HP preserved through boss fight |
+| Act advanced (act 2+) | +12.0 | Encourages full-act progression |
+| Victory | +60.0 | Terminal |
+| Defeat | -25.0 + 0.25 x floor | Floor-prorated to avoid instant runs being equally bad |
 
 ### 5.2 Rationale
 
-- HP loss penalty is calibrated so a 10-damage hit costs `−0.5`, equal to a generic monster kill. This balances offense and defense early in training.
-- Spawner shaping is the critical incentive against "minion farming." Without it, killing easy minions can feel as rewarding as killing the spawner per unit time.
+- HP loss penalty is calibrated so a 10-damage hit costs `-0.8`, roughly equal to a generic monster kill (+0.75). This balances offense and defense early in training.
+- Priority monster shaping is the critical incentive against "minion farming." Without it, killing easy minions can feel as rewarding as killing the spawner per unit time.
+- The elite win bonus (+4.0) makes elite fights clearly positive-EV despite their HP cost (~31 HP average). Training data showed that games with 2+ elites doubled the Act 1 boss win rate, but the reward function made elites reward-neutral. The bonus corrects this.
+- The rest-site upgrade reward (+0.30) prevents over-resting at high HP. Without it, the HP loss penalty (0.08/HP) makes topping off immediately rewarding even at 73/80 HP, while upgrade benefits are delayed. The upgrade reward makes smithing competitive with healing.
+- The HP-scaled floor advance (0.50 base + 0.25 x HP ratio) gives a dense per-floor gradient: arriving at the boss at 75/80 HP is worth 0.73, arriving at 30/80 is worth 0.59. This teaches HP conservation without punishing survival at low health.
 - The act-advance bonus is a structural shaping term: it discourages stalling in act 1 and rewards real progression.
 
 ### 5.3 Shaped vs. terminal balance
 
-For a typical successful 16-floor run with 1 victory, the shaped reward sum is roughly:
+For a typical successful 16-floor run with 1 boss kill:
 
 ```
-Shaped:   ~30-50  (gold, damage dealt, kills, floor progression)
-Terminal: +50     (victory)
-Total:    ~80-100
+Shaped:   ~35-55  (gold, damage dealt, kills, floor progression, elite bonus)
+Terminal: boss kill +8 to +16, act advance +12
+Total:    ~55-80
 ```
 
 For a defeat at floor 5:
 
 ```
 Shaped:   ~5-10
-Terminal: -15 + 5*0.3 = -13.5
-Total:    ~-5 to -10
+Terminal: -25 + 5*0.25 = -23.75
+Total:    ~-15 to -20
 ```
 
 The shaped portion is meaningful but not so dominant that the terminal signal becomes noise.
@@ -285,7 +324,7 @@ The heuristic handles every decision surface:
 
 ### 6.2 Resumable BC checkpointing
 
-Long BC collection (150–200 games) takes 1–3 hours and is fragile to STS crashes. The system saves a per-game checkpoint at `models/ppo_sts_bc_progress.npz` after every completed BC game:
+Long BC collection (150-200 games) takes 1-3 hours and is fragile to STS crashes. The system saves a per-game checkpoint at `models/ppo_sts_bc_progress.npz` after every completed BC game:
 
 | Field | Type |
 |---|---|
@@ -306,7 +345,7 @@ L_BC = CrossEntropy(policy(obs), heuristic_action_id)
        restricted to legal actions via action mask
 ```
 
-Default: 30 epochs, batch size 64, learning rate 1e-3, ~200 BC games producing ~30k–60k labeled transitions.
+Default: 30 epochs, batch size 64, learning rate 1e-3, ~200 BC games producing ~30k-60k labeled transitions.
 
 ---
 
@@ -322,9 +361,9 @@ L_total = L_PG (clipped) + c_v * L_VF + c_e * H(pi) + c_BC * L_BC_anchor
 
 | Term | Coefficient | Purpose |
 |---|---:|---|
-| `L_PG` (clipped surrogate) | 1.0 | Standard PPO policy gradient with clip ε = 0.15–0.20 |
+| `L_PG` (clipped surrogate) | 1.0 | Standard PPO policy gradient with clip epsilon = 0.15-0.20 |
 | `L_VF` (value loss) | 0.5 | MSE between predicted value and discounted return |
-| `H(pi)` (entropy bonus) | 0.05 → 0.01 (annealed) | Encourages exploration early, exploitation late |
+| `H(pi)` (entropy bonus) | 0.05 -> 0.01 (annealed) | Encourages exploration early, exploitation late |
 | `L_BC_anchor` | 0.02 | KL-style regularizer pulling toward original BC distribution on demo states |
 
 ### 7.2 Stability mechanisms
@@ -333,7 +372,7 @@ L_total = L_PG (clipped) + c_v * L_VF + c_e * H(pi) + c_BC * L_BC_anchor
 - **Entropy annealing:** linear decay from 0.05 to 0.01 over the configured PPO game budget (or first 200 games in unlimited mode). Early exploration, late exploitation.
 - **BC anchor loss:** evaluated on a held-out subset of the BC demo set. Anchors the policy near the heuristic distribution and reduces catastrophic forgetting of useful prior behavior.
 - **Gradient clipping:** max norm 0.5.
-- **GAE returns:** γ = 0.995, λ = 0.95.
+- **GAE returns:** gamma = 0.995, lambda = 0.95.
 - **Per-game PPO batches:** updates fire every `--games-per-update` (default 4) completed games. Larger batches stabilize gradients at the cost of update frequency.
 
 ### 7.3 Target-KL diagnostic example
@@ -384,7 +423,7 @@ Each `.npz` file represents one completed game:
 
 | Field | Type | Description |
 |---|---|---|
-| `obs` | float32 [T, 530] | Observation history |
+| `obs` | float32 [T, 585] | Observation history |
 | `actions` | int64 [T] | Sampled action ids |
 | `rewards` | float32 [T] | Per-step shaped + terminal |
 | `dones` | bool [T] | Episode termination flags |
@@ -409,10 +448,10 @@ Workers reload the model checkpoint periodically (default: every 5 games) to kee
 
 | Workers | Games / hour (with Super Fast Mode) | Wall-clock cost |
 |---:|---:|---|
-| 1 | ~30–60 | baseline |
-| 2 | ~60–110 | low marginal CPU cost |
-| 4 | ~110–200 | comfortable on 8-core / 16GB systems |
-| 6 | ~140–250 | requires 16+ GB RAM, watch for STS instability |
+| 1 | ~30-60 | baseline |
+| 2 | ~60-110 | low marginal CPU cost |
+| 4 | ~110-200 | comfortable on 8-core / 16GB systems |
+| 6 | ~140-250 | requires 16+ GB RAM, watch for STS instability |
 | 8+ | diminishing | mod thread contention dominates |
 
 ---
@@ -441,20 +480,20 @@ Live-game RL fundamentally throttles on game-simulation speed. Numbers below are
 | Phase | Games | Time per game | Total wall-clock |
 |---|---:|---:|---|
 | BC collection | 200 | ~60 s | ~3 hours (1 instance) |
-| BC supervised training | — | — | ~2 minutes (CPU) |
+| BC supervised training | - | - | ~2 minutes (CPU) |
 | Initial PPO sanity | 50 | ~75 s | ~1 hour (1 instance) |
-| Parallel PPO main run | 1500–3000 | ~75 s | 8–24 hours (4 workers) |
+| Parallel PPO main run | 1500-3000 | ~75 s | 8-24 hours (4 workers) |
 | Greedy evaluation | 200 | ~50 s | ~3 hours (1 instance) |
 
 ### 9.3 Memory footprint
 
 | Item | Approximate size |
 |---|---:|
-| Policy/value network parameters | ~235K floats ≈ 1 MB |
-| Per-state observation | 2.1 KB |
+| Policy/value network parameters | ~504K floats ~ 2 MB |
+| Per-state observation | 2.3 KB |
 | One full game (200 steps) | ~1.5 MB rollout `.npz` |
-| Active GameBuffer (4 games) | ~6–10 MB |
-| 1000 BC demos | ~3–5 MB compressed |
+| Active GameBuffer (4 games) | ~6-10 MB |
+| 1000 BC demos | ~3-5 MB compressed |
 
 ### 9.4 Expected learning curve (illustrative)
 
@@ -481,7 +520,7 @@ Avg-100 final floor
 
 What this implies in practice:
 
-- BC alone tends to stall in act 1 / early act 2 (~floor 9–13 average).
+- BC alone tends to stall in act 1 / early act 2 (~floor 9-13 average).
 - The first ~500 PPO games typically don't move avg-100 much because of buffer warm-up and entropy still being high.
 - Real gains usually start after ~1000 cumulative PPO games and after entropy has annealed.
 
@@ -503,11 +542,11 @@ These are *expected* numbers based on similar STS RL work and are not yet valida
 
 | File | Responsibility |
 |---|---|
-| `obs_encoder.py` | 530-d observation construction, monster knowledge base, map lookahead. |
-| `sts_gym_env.py` | Action space, action masking, flat-id ↔ SpireComm action conversion, RewardTracker. |
+| `obs_encoder.py` | 585-d observation construction, monster knowledge base (19 power slots), map lookahead. |
+| `sts_gym_env.py` | Action space, action masking, flat-id <-> SpireComm action conversion, RewardTracker. |
 | `ppo_model.py` | GameBuffer (GAE), PPOTrainer (clipped policy, value loss, entropy, BC anchor, target-KL early stop, atomic checkpoint save/load). |
 | `behavior_clone.py` | Heuristic policy + supervised BC training driver. Includes resumable progress checkpointing. |
-| `train_bc_ppo.py` | End-to-end BC → PPO pipeline in a single session. |
+| `train_bc_ppo.py` | End-to-end BC -> PPO pipeline in a single session. |
 | `train_ppo.py` | Single-instance PPO training. |
 | `rollout_worker.py` | Worker for parallel rollout collection. |
 | `train_offline.py` | Offline trainer that consumes rollouts and updates the shared model. |
@@ -558,20 +597,20 @@ Long-running modded *Slay the Spire* sessions are fragile. Concrete reliability 
 
 ### 12.2 Throughput
 
-- **Live-game bottleneck.** Even at maximum Fast Mode + Super Fast Mode 200%, one game costs ~30–90 seconds. There is no headless simulator integration.
-- **Single-machine ceiling.** ~6–8 concurrent instances is realistic on a 16-core machine; beyond that, mod thread contention dominates. Multi-machine pooling exists but is manual.
+- **Live-game bottleneck.** Even at maximum Fast Mode + Super Fast Mode 200%, one game costs ~30-90 seconds. There is no headless simulator integration.
+- **Single-machine ceiling.** ~6-8 concurrent instances is realistic on a 16-core machine; beyond that, mod thread contention dominates. Multi-machine pooling exists but is manual.
 
 ### 12.3 Algorithmic / training risk
 
-- **No proven win-rate convergence yet.** The full pipeline is in place but has not been run for the full ~3000-game budget needed to demonstrate convergence.
+- **No proven win-rate convergence yet.** The full pipeline has now produced multi-thousand-game PPO checkpoints and 200-game fixed-seed evaluations, but no published eval has recorded a full victory. The best documented PPO eval reached floor 42, and the main bottleneck remains Act 1 boss conversion around floor 16.
 - **Reward shaping bias risk.** Dense shaping accelerates learning but can encode biases (e.g., over-prioritizing damage dealt vs. healthy block usage). The reward-correlation analyzer exists but tuning is ongoing.
-- **PPO can forget BC.** With high entropy / learning rate / KL movement, PPO can drift away from valuable BC priors. The BC anchor loss mitigates but does not eliminate this.
+- **PPO can forget BC.** With high entropy / learning rate / KL movement, PPO can drift away from valuable BC priors. The BC anchor loss and auto-tuned BC coefficient mitigate this but do not eliminate the exploration-valley risk.
 - **Rollout staleness.** Workers cache the model and lag the trainer by N games. Beyond ~10 updates lag the importance ratios are stale; rollouts get rejected, throughput drops.
 
 ### 12.4 Coverage gaps
 
-- **Shop logic is mostly heuristic.** Shop rooms are entered once per floor (a deliberate hack to prevent loops). Real budget-aware shopping should eventually be RL-driven.
-- **Grid screens are heuristic-handled.** Match-and-keep, transform, and special grids have specialized handlers but no learned policy.
+- **Shop logic is fully heuristic.** Shop rooms are entered once per floor (a deliberate hack to prevent loops). Real budget-aware shopping should eventually be RL-driven.
+- **Grid screens are heuristic-handled.** Match-and-keep, transform, and special grids have specialized handlers but no learned policy. These have low strategic value.
 - **Events with disabled options can be brittle.** Most edge cases are handled; new mod-introduced events may not be.
 
 ### 12.5 Platform
@@ -581,7 +620,7 @@ Long-running modded *Slay the Spire* sessions are fragile. Concrete reliability 
 
 ### 12.6 Evaluation
 
-- **Eval game count is the bottleneck for confidence.** A 20-game greedy eval has ~22% standard error on win rate; meaningful comparisons need 100–200 games on the same fixed seed list.
+- **Eval game count is the bottleneck for confidence.** A 20-game greedy eval has ~22% standard error on win rate; meaningful comparisons need 100-200 games on the same fixed seed list.
 - **No inter-checkpoint regression detection.** If a PPO update degrades performance, it is not flagged automatically; only the rolling-average plot reveals it.
 
 ### 12.7 Known infrequent edge cases
@@ -596,27 +635,27 @@ Long-running modded *Slay the Spire* sessions are fragile. Concrete reliability 
 
 The roadmap is organized into three horizons. Items are listed in rough priority order within each.
 
-### 13.1 Short-term (next 1–3 months)
+### 13.1 Short-term (next 1-3 months)
 
 1. **Run the first full converged training to ground all the estimates above.** Target: 200 BC games + 3000 PPO games at 4 workers. Goal: verify avg-100 floor trends upward and victory rate exceeds heuristic baseline.
-2. **Controlled greedy evaluation pipeline.** Run `eval_model.py` with `seeds/eval_200.txt` after every 250–500 PPO games. Track win rate, avg floor, elite win rate, boss win rate as time series.
+2. **Controlled greedy evaluation pipeline.** Run `eval_model.py` with `seeds/eval_200.txt` after every 250-500 PPO games. Track win rate, avg floor, elite win rate, boss win rate as time series.
 3. **Reward-correlation regression check.** Use `analyze_training_rewards.py` to verify shaped reward correlates positively with actual outcomes (final floor, victory). If correlation is weak, retune weights.
 4. **Checkpoint versioning.** Replace single-file `ppo_sts.pt` with named checkpoints (`ppo_sts_g{N}.pt`) plus a `current.pt` symlink. Allow rollback if PPO regresses.
 5. **Run manifest.** Persist hyperparameters, git commit, BC count, PPO count, worker count, entropy schedule, and final-eval results to `runs/run_YYYYMMDD/manifest.json`.
 
-### 13.2 Medium-term (3–6 months)
+### 13.2 Medium-term (3-6 months)
 
 1. **Move shop decisions into RL.** Build a structured shop observation block (cards on offer with prices, relics on offer, gold available) and let the policy decide buy/skip/remove.
 2. **Move grid screens into RL.** Match-and-keep, transform, and similar grids are good candidates for a learned policy, since the heuristic is already weak there.
-3. **Headless or accelerated simulator.** If a reliable open-source STS simulator becomes available, integrate it as a parallel path. A headless simulator would unlock 10–100× throughput.
+3. **Headless or accelerated simulator.** If a reliable open-source STS simulator becomes available, integrate it as a parallel path. A headless simulator would unlock 10-100x throughput.
 4. **Better experiment tracking.** Integrate with TensorBoard or a lightweight equivalent for live training-curve dashboards.
 5. **Saved policy-state snapshots for offline inspection.** Instead of needing a live eval to inspect top actions, persist a curated set of representative game states and run the policy on them.
 6. **More aggressive PPO ablations.** Sweep learning rate, entropy schedule, BC anchor coefficient, target KL, and games-per-update on a fixed-seed eval set.
 
 ### 13.3 Long-term (6+ months)
 
-1. **Additional characters.** Silent → Defect → Watcher. Each needs new card/relic stats and BC heuristics; the obs encoder schema needs character-specific blocks.
-2. **Higher ascensions.** Ascension 1–20 progression with curriculum-style training.
+1. **Additional characters.** Silent -> Defect -> Watcher. Each needs new card/relic stats and BC heuristics; the obs encoder schema needs character-specific blocks.
+2. **Higher ascensions.** Ascension 1-20 progression with curriculum-style training.
 3. **Multi-machine training pool.** Replace the manual zip-folder collaboration workflow with a proper rollout server (HTTP or shared filesystem with auth).
 4. **Cross-platform support.** Linux/macOS port for GUI, launcher, and process management.
 5. **More expressive policy.** Replace the 2-layer MLP with a transformer or attention-pooled architecture over the variable-length sub-vectors (hand cards, monsters, choices). Current MLP is fine but capacity-limited.
@@ -641,19 +680,19 @@ The roadmap is organized into three horizons. Items are listed in rough priority
 For a clean restart from no useful model:
 
 1. **Archive prior artifacts:** `models/`, `logs/*.csv`, `logs/*.log`, `rollouts_shared/*.npz`.
-2. **Run BC** with 150–200 games (`Mode: BC → PPO (End-to-End)` in the GUI). Resumable checkpointing protects long runs.
-3. **(Optional) BC → PPO sanity:** add 0–50 PPO games after BC to validate the pipeline before scaling.
+2. **Run BC** with 150-200 games (`Mode: BC -> PPO (End-to-End)` in the GUI). Resumable checkpointing protects long runs.
+3. **(Optional) BC -> PPO sanity:** add 0-50 PPO games after BC to validate the pipeline before scaling.
 4. **Switch to Parallel Workers** with 4 workers for the main PPO budget (target ~3000 games).
-5. **Greedy eval** every 250–500 PPO games on `seeds/eval_200.txt`.
+5. **Greedy eval** every 250-500 PPO games on `seeds/eval_200.txt`.
 6. **Plot trends:** `python scripts/plot_training.py --save logs/training_plot.png`. Use rolling avg-100 as the primary signal.
 
 ### 14.2 Hyperparameters: when to change what
 
 | Symptom | Likely cause | Adjustment |
 |---|---|---|
-| Avg floor flat for >500 PPO games | Entropy too high, exploration is masking gains | Drop `--ent-end` from 0.01 → 0.005 |
+| Avg floor flat for >500 PPO games | Entropy too high, exploration is masking gains | Drop `--ent-end` from 0.01 -> 0.005 |
 | Approximate KL hits target every update | LR too high or entropy too high | Halve `--ppo-lr` or drop `--ent-start` |
-| BC anchor loss climbs steadily | Policy drifting from BC distribution | Increase `--bc-anchor-coef` from 0.02 → 0.05 |
+| BC anchor loss climbs steadily | Policy drifting from BC distribution | Increase `--bc-anchor-coef` from 0.02 -> 0.05 |
 | Many stale-rollout rejections | Workers reloading too rarely | Decrease worker reload interval |
 | Few wins despite high shaped reward | Reward shaping is misaligned | Run `analyze_training_rewards.py`; retune low-correlation weights |
 | Worker crashes / hangs | STS / mod instability | Reduce concurrent workers; enable verbose logging |
@@ -671,10 +710,10 @@ For a clean restart from no useful model:
 | Elite / boss win rate | `fight_stats.csv` | Per-fight outcome | Climbing as policy learns |
 | PPO updates | `training_stats.csv` | Total update count | Monotonic |
 | Trainer-consumed transitions | `training_stats.csv` | Total samples used | Monotonic |
-| Policy entropy | `training_stats.csv` | Sampling diversity | 0.05 → 0.01 over annealing |
+| Policy entropy | `training_stats.csv` | Sampling diversity | 0.05 -> 0.01 over annealing |
 | Value loss | `training_stats.csv` | Critic fitting quality | Decreasing then plateau |
-| Approximate KL | `training_stats.csv` | Old → new policy distance | <0.03 (target-KL) |
-| Clip fraction | `training_stats.csv` | % steps hitting PPO clip | 0.1–0.3 |
+| Approximate KL | `training_stats.csv` | Old -> new policy distance | <0.03 (target-KL) |
+| Clip fraction | `training_stats.csv` | % steps hitting PPO clip | 0.1-0.3 |
 | Explained variance | `training_stats.csv` | Critic predictive power | Climbing toward 1.0 |
 | BC anchor loss | `training_stats.csv` | Distance from BC distribution | Stable, not climbing |
 | Stale-rollout rejection count | `train_offline_debug.log` | Worker-trainer drift | Low (<10% of files) |
@@ -691,7 +730,7 @@ For *Slay the Spire*, **avg-25 is too noisy** — one early death or one deep ru
 
 | Parameter | Default | Notes |
 |---|---|---|
-| `--bc-games` | 50 (suggested 150–200) | Number of heuristic demonstration games |
+| `--bc-games` | 50 (suggested 150-200) | Number of heuristic demonstration games |
 | `--bc-epochs` | 30 | Supervised training epochs |
 | `--bc-lr` | 1e-3 | BC learning rate |
 | `--batch-size` | 64 | BC and PPO minibatch size |
@@ -704,7 +743,7 @@ For *Slay the Spire*, **avg-25 is too noisy** — one early death or one deep ru
 | `--ppo-lr` | 1e-4 | PPO learning rate |
 | `--gamma` | 0.995 | Discount factor (long-run shaping) |
 | `--gae-lambda` | 0.95 | GAE smoothing |
-| `--clip` | 0.15 | PPO clip range ε |
+| `--clip` | 0.15 | PPO clip range epsilon |
 | `--ent-start` | 0.05 | Initial entropy coefficient |
 | `--ent-end` | 0.01 | Final entropy coefficient (annealed) |
 | `--target-kl` | 0.03 | Per-update KL early-stop threshold |
@@ -715,12 +754,15 @@ For *Slay the Spire*, **avg-25 is too noisy** — one early death or one deep ru
 
 ### 16.3 Network
 
-| Parameter | Default |
-|---|---|
-| Hidden layers | (256, 256) |
-| Activation | Tanh |
-| Optimizer | Adam |
-| Total parameters | ~235,000 |
+| Parameter | Legacy default | Current offline PPO default |
+|---|---|---|
+| Hidden layers | (256, 256) | (512, 256, 256) |
+| Activation | Tanh | GELU |
+| Optimizer | Adam | Adam |
+| Total parameters | ~236,000 | ~504,000 |
+| Migration path | direct checkpoint load | `--warm-transfer` from compatible older checkpoints |
+
+The `PPOTrainer` class still accepts arbitrary `net_arch` and `activation` values. The May 21 offline-training path defaults to the larger GELU architecture because the 12k-game diagnosis showed the 256x256 MLP plateauing around 15 average floor with explained variance roughly flat near 0.78. Warm transfer copies compatible weight blocks from the old checkpoint and partially initializes widened layers so the policy does not restart from scratch.
 
 ---
 
@@ -742,6 +784,50 @@ For *Slay the Spire*, **avg-25 is too noisy** — one early death or one deep ru
 
 ---
 
+## 18. May 21, 2026 Current-System Addendum
+
+This addendum captures the major work after the original May 7 technical writeup. The important shift is that the project moved from "pipeline exists and needs a first long run" to "long-run PPO evidence exists, the Act 1 boss wall is measured, and the next architecture iteration is implemented."
+
+### 18.1 Commit range covered
+
+The original 0.4 writeup landed at `71964ad` and the PDF layout fix landed at `fc243ed`. Since then, the repository added 33 commits through `5d9edb1` on `main`. The changes fall into these themes:
+
+| Theme | Representative commits | Why it mattered |
+|---|---|---|
+| PPO/BC stability | `ed17d2b`, `82f257e`, `e8fa0bf`, `2842221`, `2d9bd02`, `db01b9d`, `e4c5dd0` | Tracked BC baselines, tuned entropy and BC coefficients, added auto-tuning, normalized stats, and made the GUI expose the controls needed to keep a BC-warm-started PPO run from drifting blindly. |
+| Behavior cloning strength | `d6d4bb7`, `af06ee9`, `2670c91` | Improved BC throughput and resume behavior, preserved BC anchors, and fixed event-choice handling so the supervised warm start receives cleaner decisions. |
+| Public reporting | `6ed45f1`, `e62483a`, `c31e02b`, `45b6557`, `44a5bde`, `b62c31c`, `4fa198e`, `4c252a0` | Added the static site, dashboard, demo assets, experiment index, and May 18 result snapshot so training claims are inspectable outside raw logs. |
+| Evaluation hardening | `e92bb0b`, `d198ad8`, `1df9765`, `9010ee1`, `a69febf`, `5c16406` | Published long-run evals, made fixed-seed eval resumable/clean, separated eval artifacts into `Eval/`, and added GUI controls for bounded worker/eval modes. |
+| Long-run process reliability | `5433f95`, `ae4ab51`, `60cd5ba` | Added game targets, model archiving, restart-every cycling, relaunch-count fixes, and per-instance JVM heap limits to reduce memory growth and stale rollouts. |
+| Policy quality and capacity | `b9f244e`, `f8f93b7`, `5d9edb1`, `ac34dc1` | Overhauled heuristic card/event/relic logic, added boss reward shaping and faster BC-anchor decay, upgraded to the `(512, 256, 256)` GELU model via warm transfer, then added elite win bonus (+3.0) and HP-scaled floor advance to improve Act 1 boss readiness. |
+
+### 18.2 Current training diagnosis
+
+The 5,146-game PPO checkpoint was the strongest published pre-shaping result: 15.44 average floor, 4.03 average reward, best floor 42, 79.9% elite win rate, and 31.1% boss conversion on the 200-game fixed-seed eval. That nearly matched the heuristic average floor of 15.78 but still trailed the heuristic on boss conversion.
+
+The 12,088-game result after boss reward shaping and accelerated BC-anchor decay regressed to 14.83 average floor and 21.7% boss conversion. This is documented as an exploration valley rather than a simple infrastructure failure: the policy loosened from heuristic imitation while the new boss signals had not yet converted into better boss-specific behavior. The key measured bottleneck is still floor 16, where roughly half of deaths occur in the 12k eval.
+
+The 256x256 network appeared to plateau: it reached roughly 15 average floor early and explained variance stayed around 0.78 for thousands of games. The May 21 network upgrade responds to that diagnosis by doubling representational capacity to roughly 504K parameters and switching to GELU while preserving as much learned behavior as possible through warm transfer.
+
+### 18.3 Code-level changes to remember
+
+- `scripts/ppo_model.py` now supports configurable activations and `warm_load()`, including partial tensor transfer and identity initialization for newly inserted compatible layers.
+- `scripts/train_offline.py` now defaults to `--net-arch 512,256,256`, supports `--activation gelu`, `--warm-transfer`, auto device selection, and richer auto-tune behavior for learning rate, entropy coefficient, and BC coefficient.
+- `scripts/sts_gym_env.py` contains boss-specific reward shaping for Guardian, Hexaghost, Slime Boss, Bronze Automaton, Champ, and Donu/Deca-style priority targets, with boss kill rewards scaled by remaining HP. Includes elite win bonus (+4.0), HP-scaled floor advance (0.50 base + 0.25 x HP ratio), rest-site upgrade reward (+0.30), and Guardian offensive-mode damage bonus (+0.03).
+- `scripts/screen_handler.py` and `scripts/behavior_clone.py` have newer event, card-tier, boss-relic, grid, and rest-site handling so disabled choices, Coffee Dripper/Fusion Hammer constraints, Match and Keep, and boss relic screens do not poison training data or freeze workers.
+- `AscensionAI.pyw` now includes archive controls, eval-set orchestration, auto-tune and entropy display, bounded worker games, restart-every cycling, and per-instance JVM heap caps.
+- `docs/dashboard/`, `docs/experiments/`, and `docs/index.html` are no longer decorative; they are the public evidence layer for comparing BC, PPO, heuristic, and fixed-seed results.
+
+### 18.4 Near-term operating guidance
+
+1. Treat the current larger GELU network as a transition experiment, not as proof of convergence.
+2. Re-evaluate around 15k games using the same fixed seed file before changing reward weights again.
+3. Watch boss conversion, floor-16 deaths, normalized entropy, explained variance, and stale-rollout counts together; no single metric is sufficient.
+4. Keep auto-tune enabled unless normalized entropy collapses below the healthy band or KL/clip behavior shows unstable updates.
+5. Preserve checkpoints and dashboard snapshots before any major reward or architecture experiment so regressions remain explainable.
+
+---
+
 ## Document History
 
 | Version | Date | Notes |
@@ -750,3 +836,6 @@ For *Slay the Spire*, **avg-25 is too noisy** — one early death or one deep ru
 | 0.2 | 2026-04-26 | Added monster knowledge base, parallel architecture |
 | 0.3 | 2026-05-06 | Added BC progress checkpointing, refined sections |
 | 0.4 | 2026-05-07 | Full restructure with tables, estimates, ASCII charts, expanded limitations and roadmap |
+| 0.5 | 2026-05-21 | Updated current status after 33 post-writeup commits, 12k PPO diagnosis, boss reward shaping, auto-tune maturation, dashboard/eval hardening, and 512/256/256 GELU warm-transfer upgrade |
+| 0.5.1 | 2026-05-22 | Updated reward weights table with current values, added elite win bonus and HP-scaled floor advance documentation, corrected heuristic vs RL decision boundary |
+| 0.6.0 | 2026-05-23 | Expanded observation encoder from 530-d to 585-d with 19 monster power slots (11 new STS1-verified powers). Added REST_UPGRADE_REWARD (+0.30), bumped ELITE_WIN_BONUS to +4.0, added GUARDIAN_OPEN_DMG_BONUS (+0.03). Fixed warm_load() to zero-initialize extra capacity. Added --warm-resume/--net-arch/--activation to train_ppo.py. 16,900+ training games, 1,856+ PPO updates. |
