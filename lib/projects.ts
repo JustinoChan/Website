@@ -209,6 +209,38 @@ export const projects: Project[] = [
     },
   },
   {
+    slug: "job-application-agent",
+    title: "Job Application Agent",
+    tagline:
+      "Truth-constrained job-hunting system that scores roles, tailors resumes, and audits every claim against source-of-truth YAML.",
+    description:
+      "Built a proactive job-hunting agent that scrapes or ingests job postings, parses company/title/requirements, scores fit against a structured profile and project bank, and produces versioned resume and cover-letter artifacts on demand.\n\nThe backend is a FastAPI service with token auth, CSV tracker persistence, and pipeline orchestration shared with a Typer CLI. A static React/Vite dashboard reviews discovered jobs, filters by fit/company/search, stars rows, bulk archives low-signal postings, and opens per-job resume, cover-letter, and audit views through the same API.\n\nDesigned the system around truth constraints: resume bullets are selected from approved YAML facts, PDF rendering re-runs the claim auditor before output, and cover letters pass a separate allowlist audit for unsupported technical claims. A scheduled scraper can run on a small GCP VM, pulling Greenhouse, Lever, Ashby, and Hacker News postings every four hours through a Cloudflare Tunnel into the local backend.",
+    tags: [
+      "Python",
+      "FastAPI",
+      "React",
+      "TypeScript",
+      "Typer",
+      "Playwright",
+      "Cloudflare",
+      "GCP",
+      "Automation",
+    ],
+    period: "May 2026 — Present",
+    status: "active",
+    commit: "5b45d58",
+    cover: "/projects/job-application-agent/cover.svg",
+    repoUrl: "https://github.com/JustinoChan/Job-Application-Agent",
+    media: [
+      {
+        type: "image",
+        src: "/projects/job-application-agent/cover.svg",
+        alt:
+          "Job Application Agent — audited job pipeline dashboard diagram",
+      },
+    ],
+  },
+  {
     slug: "bitlink",
     title: "BitLink",
     tagline:
