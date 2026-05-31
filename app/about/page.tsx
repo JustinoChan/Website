@@ -95,7 +95,9 @@ export default function AboutPage() {
               distributed RL system that trains an AI to play Slay the Spire through
               behavior cloning and PPO fine-tuning, with a 530-dimensional
               observation encoder, a 66-monster knowledge base, action masking over 134 discrete actions,
-              and parallel rollout workers feeding a central offline trainer across multiple live game instances.
+              and parallel rollout workers feeding a central offline trainer across multiple live game instances —
+              deployed headless on a GPU-less GCP spot VM via a one-shot installer, with each game instance running
+              under its own Xvfb virtual display and software OpenGL.
             </p>
             <p>
               Other projects include a search engine over 56,000+ web pages, a

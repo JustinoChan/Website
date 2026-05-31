@@ -44,6 +44,7 @@ const projectHighlights = [
       "Implemented PPO from scratch with clipped objective, GAE advantages, target-KL early stopping, and a BC anchor loss to prevent catastrophic forgetting during fine-tuning.",
       "Designed parallel rollout architecture: 4 concurrent worker processes feeding a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection.",
       "Engineered for 24+ hour autonomous runs: atomic checkpoint saves, resumable progress, crash detection, orphan-process cleanup, and infinite-loop recovery.",
+      "Deployed the stack headless on a GPU-less GCP spot VM via a one-shot installer (8 game instances under per-worker Xvfb + software OpenGL), debugging display contention, LWJGL native-extraction SIGSEGV races, Java 8 mod loading, a 10 s mod-handshake timeout, and a silent JVM heap OOM, plus spot-preemption recovery.",
     ],
   },
   {
