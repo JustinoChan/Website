@@ -40,11 +40,12 @@ const projectHighlights = [
     title: "ascension-ai",
     period: "2025-11 → present",
     bullets: [
-      "Built end-to-end RL pipeline with 530-d structured observation encoder and 134-action masked policy for a real-time game environment.",
+      "Built end-to-end RL pipeline with a 717-d structured observation encoder and 134-action masked policy for a real-time game environment.",
       "Implemented PPO from scratch with clipped objective, GAE advantages, target-KL early stopping, and a BC anchor loss to prevent catastrophic forgetting during fine-tuning.",
-      "Designed parallel rollout architecture: 4 concurrent worker processes feeding a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection.",
-      "Engineered for 24+ hour autonomous runs: atomic checkpoint saves, resumable progress, crash detection, orphan-process cleanup, and infinite-loop recovery.",
-      "Deployed the stack headless on a GPU-less GCP spot VM via a one-shot installer (8 game instances under per-worker Xvfb + software OpenGL), debugging display contention, LWJGL native-extraction SIGSEGV races, Java 8 mod loading, a 10 s mod-handshake timeout, and a silent JVM heap OOM, plus spot-preemption recovery.",
+      "Made deck-building a learned skill: added a per-card deck observation vector and moved card removal/upgrade from a heuristic into the RL policy with a potential-based deck-quality reward, migrating the trained model 585→717 via behavior-preserving warm transfer + a BC anchor.",
+      "Designed parallel rollout architecture: 4–8 concurrent worker processes feeding a central offline trainer via checkpoint-tagged .npz files, with stale-rollout rejection.",
+      "Deployed the stack headless on a GPU-less GCP spot VM via a one-shot installer (8 instances under per-worker Xvfb + software OpenGL), debugging display contention, LWJGL native-extraction SIGSEGV races, Java 8 mod loading, a 10 s mod-handshake timeout, and a silent JVM heap OOM.",
+      "Built self-healing, session-independent training ops: a per-worker watchdog + a VM cron that continuously auto-resumes training (with an auditable heartbeat) + a Cloud Scheduler job that restarts the spot VM after preemption — recovering in ~15–25 min with no human.",
     ],
   },
   {

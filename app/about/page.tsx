@@ -93,11 +93,12 @@ export default function AboutPage() {
               project is{" "}
               <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">AscensionAI</a>, a
               distributed RL system that trains an AI to play Slay the Spire through
-              behavior cloning and PPO fine-tuning, with a 530-dimensional
-              observation encoder, a 66-monster knowledge base, action masking over 134 discrete actions,
-              and parallel rollout workers feeding a central offline trainer across multiple live game instances —
-              deployed headless on a GPU-less GCP spot VM via a one-shot installer, with each game instance running
-              under its own Xvfb virtual display and software OpenGL.
+              behavior cloning and PPO fine-tuning, with a 717-dimensional
+              observation encoder, a 66-monster knowledge base, learned deck-building (the policy sees its full deck
+              and chooses card removals and upgrades), action masking over 134 discrete actions,
+              and parallel rollout workers feeding a central offline trainer —
+              deployed headless and self-healing on a GPU-less GCP spot VM, so it trains continuously and recovers from
+              preemption on its own.
             </p>
             <p>
               Other projects include a search engine over 56,000+ web pages, a
