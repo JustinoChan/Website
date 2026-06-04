@@ -227,7 +227,7 @@ export default function CommandPalette({
       <div className="relative w-full max-w-[640px] bg-[var(--color-bg)] border border-[var(--color-fg)] shadow-[8px_8px_0_var(--color-fg)]">
         {/* Header */}
         <div className="px-3 py-1.5 border-b border-[var(--color-line)] flex items-center justify-between text-[10px] tracking-[0.18em] uppercase text-[var(--color-fg-muted)]">
-          <span>justin-shell · v1.3</span>
+          <span>justin-shell · v1.4</span>
           <span>
             press{" "}
             <span className="text-[var(--color-fg)]">esc</span> to close

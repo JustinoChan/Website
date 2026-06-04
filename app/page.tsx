@@ -137,7 +137,7 @@ export default function HomePage() {
             <div className="grid grid-cols-[7rem_1fr] gap-x-4 gap-y-1.5 items-baseline">
               <span className="text-[var(--color-accent)]">[building]</span>
               <span className="text-[var(--color-fg)]">
-                <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="hover:text-[var(--color-accent)] transition-colors">AscensionAI</a> · RL agent for Slay the Spire
+                <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="hover:text-[var(--color-accent)] transition-colors">AscensionAI</a> · RL agent for Slay the Spire · <Link href="/projects/job-application-agent" className="hover:text-[var(--color-accent)] transition-colors">Job-Application-Agent</Link>
               </span>
               <span className="text-[var(--color-accent)]">[reading]</span>
               <span className="text-[var(--color-fg-muted)]">
@@ -167,14 +167,15 @@ export default function HomePage() {
             />
             <SysRow k="location" v="brentwood, ca" />
             <SysRow k="timezone" v="UTC-08:00" />
-            <SysRow k="education" v="ucI · b.s. swe" />
+            <SysRow k="education" v="uci · b.s. swe" />
           </SysCard>
 
           <SysCard title="// now">
             <p className="text-[var(--color-fg-muted)] text-xs">
               <span className="text-[var(--color-accent)]">building</span> ·{" "}
               <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">AscensionAI</a>, an RL agent that plays Slay the Spire end-to-end
-              via PPO + behavior cloning.
+              via PPO + behavior cloning, and{" "}
+              <Link href="/projects/job-application-agent" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">Job-Application-Agent</Link>.
             </p>
             <p className="text-[var(--color-fg-muted)] text-xs mt-2">
               <span className="text-[var(--color-accent)]">reading</span> ·
@@ -223,7 +224,7 @@ export default function HomePage() {
       <div className="mt-16">
         <Rule />
         <div className="mt-1">
-          <ManStrip center="portfolio manual · v1.3 · 2026-05-17" />
+          <ManStrip center="portfolio manual · v1.4 · 2026-06-03" />
         </div>
       </div>
     </article>
