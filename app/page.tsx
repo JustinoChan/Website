@@ -137,7 +137,11 @@ export default function HomePage() {
             <div className="grid grid-cols-[7rem_1fr] gap-x-4 gap-y-1.5 items-baseline">
               <span className="text-[var(--color-accent)]">[building]</span>
               <span className="text-[var(--color-fg)]">
-                <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="hover:text-[var(--color-accent)] transition-colors">AscensionAI</a> · RL agent for Slay the Spire · <Link href="/projects/job-application-agent" className="hover:text-[var(--color-accent)] transition-colors">Job-Application-Agent</Link>
+                <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="hover:text-[var(--color-accent)] transition-colors">AscensionAI</a> · RL agent for Slay the Spire
+              </span>
+              <span aria-hidden="true" />
+              <span className="text-[var(--color-fg)]">
+                <Link href="/projects/job-application-agent" className="hover:text-[var(--color-accent)] transition-colors">Job-Application-Agent</Link> · job-search assistant for parsing postings, scoring fit, and drafting tailored application materials
               </span>
               <span className="text-[var(--color-accent)]">[reading]</span>
               <span className="text-[var(--color-fg-muted)]">
@@ -174,8 +178,11 @@ export default function HomePage() {
             <p className="text-[var(--color-fg-muted)] text-xs">
               <span className="text-[var(--color-accent)]">building</span> ·{" "}
               <a href="https://justinochan.github.io/AscensionAI/" target="_blank" rel="noreferrer" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">AscensionAI</a>, an RL agent that plays Slay the Spire end-to-end
-              via PPO + behavior cloning, and{" "}
-              <Link href="/projects/job-application-agent" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">Job-Application-Agent</Link>.
+              via PPO + behavior cloning.
+            </p>
+            <p className="text-[var(--color-fg-muted)] text-xs mt-2">
+              <span className="text-[var(--color-accent)]">building</span> ·{" "}
+              <Link href="/projects/job-application-agent" className="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors">Job-Application-Agent</Link>, a job-search assistant that parses postings, scores fit, and drafts tailored resumes and cover letters.
             </p>
             <p className="text-[var(--color-fg-muted)] text-xs mt-2">
               <span className="text-[var(--color-accent)]">reading</span> ·
